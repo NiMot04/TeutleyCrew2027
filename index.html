@@ -1,410 +1,411 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Vacay 2027 Explorer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <style>
-    :root{
-      --bg:#EFF4F3; --surface:#FFFFFF; --ink:#10282E; --muted:#587074; --line:#D3E0DF;
-      --accent:#0B7A75; --on-accent:#FFFFFF; --sun:#D98E1F; --sun-soft:#FBEBD0;
-      --good:#2E7D4F; --warn:#B7791F; --bad:#B8443A;
-      --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
-      --body:"Figtree", "Segoe UI", system-ui, sans-serif;
-      --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-      --r:10px;
-    }
-    @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-      --bg:#0B1719; --surface:#122326; --ink:#E2EEED; --muted:#8EA7A9; --line:#22383B;
-      --accent:#3EC0B4; --on-accent:#06201E; --sun:#F0B54F; --sun-soft:#3A2E17;
-      --good:#5CC48A; --warn:#E3AE4F; --bad:#EE7A6E; color-scheme:dark}}
-    :root[data-theme="dark"]{
-      --bg:#0B1719; --surface:#122326; --ink:#E2EEED; --muted:#8EA7A9; --line:#22383B;
-      --accent:#3EC0B4; --on-accent:#06201E; --sun:#F0B54F; --sun-soft:#3A2E17;
-      --good:#5CC48A; --warn:#E3AE4F; --bad:#EE7A6E; color-scheme:dark}
-    *{box-sizing:border-box}
-    body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:0 96px}
-    .wrap{max-width:1180px;margin:0 auto}
-    h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
-    header.top{padding-block:28px 18px;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:end;justify-content:space-between}
-    header.top h1{font-size:clamp(28px,4.4vw,44px);font-weight:700;line-height:1.05}
-    header.top h1 span{color:var(--accent)}
-    .facts{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px}
-    .facts b{color:var(--ink);font-weight:600}
-    .eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-    .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
-    .controls{padding:14px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));align-items:end}
-    .field{display:grid;gap:6px;min-width:0}
-    .field.wide{grid-column:1/-1}
-    .field label,.field .lab{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-    select,input[type=search]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
-    .row-inline{display:flex;gap:6px;min-width:0}
-    button{font:inherit;cursor:pointer;color:inherit}
-    .btn{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 12px;font-weight:500;white-space:nowrap}
-    .btn:hover{border-color:var(--accent)}
-    .btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-    :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-    .seg{display:flex;flex-wrap:wrap;gap:6px}
-    .chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 11px;font-size:13px}
-    .chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-    input[type=range]{width:100%;accent-color:var(--accent)}
-    .rangeval{font:500 13px var(--mono);font-variant-numeric:tabular-nums}
-    details.weights{margin-top:12px}
-    details.weights summary{cursor:pointer;padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;list-style:none}
-    details.weights summary::-webkit-details-marker{display:none}
-    details.weights summary h2{font-size:17px}
-    details.weights summary .hint{color:var(--muted);font-size:13px}
-    .caret{transition:transform .15s;display:inline-block}
-    details[open] .caret{transform:rotate(90deg)}
-    .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 22px;padding:4px 14px 14px}
-    .w{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
-    .w label{font-size:13px}
-    .w input{grid-column:1/-1}
-    .wfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:0 14px 14px;color:var(--muted);font-size:13px}
-    .wfoot .sum{font-family:var(--mono);color:var(--ink)}
-    .status{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin:22px 2px 10px}
-    .status h2{font-size:22px}
-    .status p{margin:0;color:var(--muted);font-size:13px}
-    .legend{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted)}
-    .legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
-    .list{display:grid;gap:8px}
-    .item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-    .item.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-    .head{display:grid;grid-template-columns:auto 44px minmax(0,1.6fr) minmax(0,1.3fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 14px}
-    .cmp{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1.5px solid var(--line);background:var(--bg);font-size:15px;line-height:1}
-    .cmp[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-    .rk{font:700 22px/1 var(--display);font-variant-numeric:tabular-nums;text-align:center}
-    .rk small{display:block;font:500 10px/1.4 var(--mono);color:var(--muted);margin-top:3px}
-    .rk small.up{color:var(--good)} .rk small.down{color:var(--bad)}
-    .nm{min-width:0}
-    .nm h3{font-size:17px;font-weight:600;line-height:1.2}
-    .nm .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-    .tag{font:500 11px/1 var(--mono);padding:4px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
-    .tag.good{color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,transparent)}
-    .tag.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
-    .tag.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
-    .strip{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;min-width:0}
-    .strip span{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font:500 10px var(--mono);max-width:100%}
-    .metric{text-align:right;min-width:0}
-    .metric .v{font:600 20px/1.1 var(--mono);font-variant-numeric:tabular-nums}
-    .metric .l{font-size:11px;color:var(--muted);line-height:1.3}
-    .metric .bar{height:4px;background:var(--line);border-radius:2px;margin-top:6px;overflow:hidden}
-    .metric .bar i{display:block;height:100%;background:var(--accent);border-radius:2px}
-    .exp{border:0;background:none;padding:6px;color:var(--muted);font-size:18px;line-height:1}
-    .exp[aria-expanded="true"]{transform:rotate(180deg)}
-    .body{border-top:1px solid var(--line);padding:16px 14px;display:grid;gap:18px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
-    .body h4{margin:0 0 8px;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-    .crit{display:grid;grid-template-columns:150px 30px minmax(0,1fr);gap:4px 10px;font-size:13.5px;padding-block:6px;border-bottom:1px dashed var(--line)}
-    .crit:last-child{border-bottom:0}
-    .crit b{font-weight:600}
-    .crit .s{font:600 13px var(--mono);text-align:center;border-radius:4px;padding:1px 0;height:fit-content}
-    .crit .w8{color:var(--muted);font:400 11px var(--mono);display:block}
-    .kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13.5px;margin:0}
-    .kv dt{color:var(--muted)} .kv dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
-    .note{font-size:13.5px;margin:6px 0 0;color:var(--ink)}
-    .side{display:grid;gap:18px;align-content:start}
-    #compare{margin-top:34px;scroll-margin-top:16px}
-    .cmphead{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:baseline;justify-content:space-between;margin-bottom:12px}
-    .cmphead h2{font-size:26px}
-    .cmphead p{margin:0;color:var(--muted);font-size:13px}
-    .cmpopts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
-    table.ct{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}
-    .ct th,.ct td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
-    .ct thead th{position:sticky;top:0;background:var(--surface);z-index:1;font-family:var(--display);font-size:15px;font-weight:600;min-width:150px}
-    .ct thead th .x{border:0;background:none;color:var(--muted);font-size:14px;padding:0 0 0 6px}
-    .ct th[scope=row]{font-weight:500;color:var(--muted);width:170px;min-width:140px;font-size:13px}
-    .ct tr.grp th{background:var(--bg);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 12px}
-    .cell{display:grid;gap:4px}
-    .cell .n{font:500 14px var(--mono);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
-    .cell .mb{height:5px;background:var(--line);border-radius:3px;overflow:hidden}
-    .cell .mb i{display:block;height:100%;background:var(--accent);opacity:.55}
-    .best .mb i{background:var(--sun);opacity:1}
-    .best .n::after{content:"best";font:600 9.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--sun);border:1px solid var(--sun);border-radius:4px;padding:2px 4px}
-    .cell .d{color:var(--muted);font-size:12.5px;line-height:1.45}
-    .empty{padding:28px;text-align:center;color:var(--muted)}
-    .wins td{font:600 14px var(--mono)}
-    .tray{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--line);z-index:5}
-    .tray .in{max-width:1180px;margin:0 auto;display:flex;gap:10px;align-items:center}
-    .tray .sels{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
-    .tray .pill{white-space:nowrap;font-size:13px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 6px 4px 11px;display:flex;gap:4px;align-items:center}
-    .tray .pill button{border:0;background:none;color:var(--muted);padding:0 4px}
-    .tray .msg{color:var(--muted);font-size:13px}
-    footer{margin-top:36px;color:var(--muted);font-size:12.5px;max-width:75ch}
-    @media (max-width:820px){
-      .head{grid-template-columns:auto 34px minmax(0,1fr) auto;row-gap:10px;column-gap:10px}
-      .head .cmp{grid-column:1;grid-row:1}
-      .head .rk{grid-column:2;grid-row:1}
-      .head .nm{grid-column:3;grid-row:1}
-      .head .metric{grid-column:4;grid-row:1}
-      .head .strip{grid-column:1/4;grid-row:2}
-      .head .exp{grid-column:4;grid-row:2;justify-self:end}
-      .body{grid-template-columns:1fr}
-      .crit{grid-template-columns:minmax(0,1fr) 30px}
-      .crit .t{grid-column:1/-1}
-    }
-    @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header class="top">
-      <div>
-        <div class="eyebrow">25th anniversary · May 25, 2027</div>
-        <h1>Vacay 2027 <span>Explorer</span></h1>
-      </div>
-      <div class="facts">
-        <span><b>2 families</b> of 4</span><span><b>7 nights</b>, May 22–29</span><span>From <b>MKE / ORD</b></span><span>Budget <b>$4,000</b> pp</span>
-      </div>
-    </header>
-
-    <section class="panel controls" aria-label="Sort and filter">
-      <div class="field">
-        <label for="sortBy">Order by</label>
-        <div class="row-inline">
-          <select id="sortBy"></select>
-          <button class="btn" id="sortDir" type="button" aria-label="Flip sort direction">↓ Best first</button>
-        </div>
-      </div>
-      <div class="field">
-        <label for="q">Find</label>
-        <input type="search" id="q" placeholder="Island, country, keyword…">
-      </div>
-      <div class="field">
-        <label for="maxCost">Max total per person <span class="rangeval" id="maxCostV"></span></label>
-        <input type="range" id="maxCost" min="2000" max="3500" step="50">
-      </div>
-      <div class="field wide">
-        <span class="lab">Only show <span style="text-transform:none;letter-spacing:0">(all selected filters must match)</span></span>
-        <div class="seg" id="filters">
-          <button class="chip" type="button" data-f="sarg" aria-pressed="false">Low sargassum</button>
-          <button class="chip" type="button" data-f="lvl1" aria-pressed="false">Level 1 / US</button>
-          <button class="chip" type="button" data-f="dry" aria-pressed="false">Rain ≤ 20%</button>
-          <button class="chip" type="button" data-f="dive" aria-pressed="false">Great diving</button>
-          <button class="chip" type="button" data-f="hike" aria-pressed="false">Good hiking</button>
-          <button class="chip" type="button" data-f="kids" aria-pressed="false">Fun for the kids</button>
-          <button class="chip" type="button" data-f="cruise" aria-pressed="false">Few cruise crowds</button>
-          <button class="chip" type="button" data-f="drive" aria-pressed="false">Easy driving</button>
-        </div>
-      </div>
-    </section>
-
-    <details class="panel weights" id="wpanel">
-      <summary><span class="caret">▸</span><h2>Adjust the weights</h2><span class="hint" id="whint">Using the weights from your Travel Constraints tab.</span></summary>
-      <div class="wgrid" id="wgrid"></div>
-      <div class="wfoot"><span>Total <span class="sum" id="wsum"></span> · scores are normalized, so the total doesn't need to be 100%.</span><button class="btn" type="button" id="wreset">Reset to sheet weights</button></div>
-    </details>
-
-    <div class="status">
-      <h2 id="countH">20 destinations</h2>
-      <div class="legend" aria-hidden="true">Criterion score <i style="background:color-mix(in srgb,var(--accent) 12%,var(--surface))"></i>low <i style="background:color-mix(in srgb,var(--accent) 95%,var(--surface))"></i>high · tick a box to compare</div>
-    </div>
-    <div class="list" id="list"></div>
-
-    <section id="compare" aria-labelledby="cmpH">
-      <div class="cmphead">
-        <div><div class="eyebrow">Side by side</div><h2 id="cmpH">Compare</h2></div>
-        <div class="cmpopts">
-          <button class="chip" type="button" id="showWhy" aria-pressed="false">Show the reasoning</button>
-          <button class="chip" type="button" id="diffOnly" aria-pressed="false">Only rows that differ</button>
-          <button class="btn" type="button" id="clearCmp">Clear</button>
-        </div>
-      </div>
-      <div id="cmpBody"></div>
-    </section>
-
-    <footer>
-      Scores, details, costs and flights come from the Vacay 2027 Top 20 sheet (v17, Oct 12, 2026). SCUBA scores diving only; Hiking is its own weighted criterion. Weather is Weather Spark's end-of-May climate average; Grace Bay uses Grand Turk, Virgin Gorda uses Road Town and Bayahibe uses La Romana. Costs are per person for 7 nights and exclude dives, tours and checked bags. Safety levels are US State Department advisories as of Oct 12, 2026.
-    </footer>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vacay 2027 Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column \2014  header, controls, ranked list with expandable rows, compare board; sticky compare tray at the bottom */
+:root{
+  --bg:#EFF4F3; --surface:#FFFFFF; --ink:#10282E; --muted:#587074; --line:#D3E0DF;
+  --accent:#0B7A75; --on-accent:#FFFFFF; --sun:#D98E1F; --sun-soft:#FBEBD0;
+  --good:#2E7D4F; --warn:#B7791F; --bad:#B8443A;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1719; --surface:#122326; --ink:#E2EEED; --muted:#8EA7A9; --line:#22383B;
+  --accent:#3EC0B4; --on-accent:#06201E; --sun:#F0B54F; --sun-soft:#3A2E17;
+  --good:#5CC48A; --warn:#E3AE4F; --bad:#EE7A6E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1719; --surface:#122326; --ink:#E2EEED; --muted:#8EA7A9; --line:#22383B;
+  --accent:#3EC0B4; --on-accent:#06201E; --sun:#F0B54F; --sun-soft:#3A2E17;
+  --good:#5CC48A; --warn:#E3AE4F; --bad:#EE7A6E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:0 96px}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+header.top{padding-block:28px 18px;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:end;justify-content:space-between}
+header.top h1{font-size:clamp(28px,4.4vw,44px);font-weight:700;line-height:1.05}
+header.top h1 span{color:var(--accent)}
+.facts{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px}
+.facts b{color:var(--ink);font-weight:600}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.controls{padding:14px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));align-items:end}
+.field{display:grid;gap:6px;min-width:0}
+.field.wide{grid-column:1/-1}
+.field label,.field .lab{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+select,input[type=search]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+.row-inline{display:flex;gap:6px;min-width:0}
+button{font:inherit;cursor:pointer;color:inherit}
+.btn{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 12px;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 11px;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rangeval{font:500 13px var(--mono);font-variant-numeric:tabular-nums}
+details.weights{margin-top:12px}
+details.weights summary{cursor:pointer;padding:12px 14px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;list-style:none}
+details.weights summary::-webkit-details-marker{display:none}
+details.weights summary h2{font-size:17px}
+details.weights summary .hint{color:var(--muted);font-size:13px}
+.caret{transition:transform .15s;display:inline-block}
+details[open] .caret{transform:rotate(90deg)}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 22px;padding:4px 14px 14px}
+.w{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.w label{font-size:13px}
+.w input{grid-column:1/-1}
+.wfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:0 14px 14px;color:var(--muted);font-size:13px}
+.wfoot .sum{font-family:var(--mono);color:var(--ink)}
+.status{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin:22px 2px 10px}
+.status h2{font-size:22px}
+.status p{margin:0;color:var(--muted);font-size:13px}
+.legend{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted)}
+.legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+/* list */
+.list{display:grid;gap:8px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.item.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.head{display:grid;grid-template-columns:auto 44px minmax(0,1.6fr) minmax(0,1.3fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 14px}
+.cmp{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1.5px solid var(--line);background:var(--bg);font-size:15px;line-height:1}
+.cmp[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.rk{font:700 22px/1 var(--display);font-variant-numeric:tabular-nums;text-align:center}
+.rk small{display:block;font:500 10px/1.4 var(--mono);color:var(--muted);margin-top:3px}
+.rk small.up{color:var(--good)} .rk small.down{color:var(--bad)}
+.nm{min-width:0}
+.nm h3{font-size:17px;font-weight:600;line-height:1.2}
+.nm .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag{font:500 11px/1 var(--mono);padding:4px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.good{color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,transparent)}
+.tag.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.tag.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.strip{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px;min-width:0}
+.strip span{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font:500 10px var(--mono);max-width:100%}
+.metric{text-align:right;min-width:0}
+.metric .v{font:600 20px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.metric .l{font-size:11px;color:var(--muted);line-height:1.3}
+.metric .bar{height:4px;background:var(--line);border-radius:2px;margin-top:6px;overflow:hidden}
+.metric .bar i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.exp{border:0;background:none;padding:6px;color:var(--muted);font-size:18px;line-height:1}
+.exp[aria-expanded="true"]{transform:rotate(180deg)}
+.body{border-top:1px solid var(--line);padding:16px 14px;display:grid;gap:18px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.body h4{margin:0 0 8px;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.crit{display:grid;grid-template-columns:150px 30px minmax(0,1fr);gap:4px 10px;font-size:13.5px;padding-block:6px;border-bottom:1px dashed var(--line)}
+.crit:last-child{border-bottom:0}
+.crit b{font-weight:600}
+.crit .s{font:600 13px var(--mono);text-align:center;border-radius:4px;padding:1px 0;height:fit-content}
+.crit .w8{color:var(--muted);font:400 11px var(--mono);display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13.5px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.note{font-size:13.5px;margin:6px 0 0;color:var(--ink)}
+.side{display:grid;gap:18px;align-content:start}
+/* compare */
+#compare{margin-top:34px;scroll-margin-top:16px}
+.cmphead{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.cmphead h2{font-size:26px}
+.cmphead p{margin:0;color:var(--muted);font-size:13px}
+.cmpopts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table.ct{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}
+.ct th,.ct td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+.ct thead th{position:sticky;top:0;background:var(--surface);z-index:1;font-family:var(--display);font-size:15px;font-weight:600;min-width:150px}
+.ct thead th .x{border:0;background:none;color:var(--muted);font-size:14px;padding:0 0 0 6px}
+.ct th[scope=row]{font-weight:500;color:var(--muted);width:170px;min-width:140px;font-size:13px}
+.ct tr.grp th{background:var(--bg);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 12px}
+.cell{display:grid;gap:4px}
+.cell .n{font:500 14px var(--mono);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
+.cell .mb{height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+.cell .mb i{display:block;height:100%;background:var(--accent);opacity:.55}
+.best .mb i{background:var(--sun);opacity:1}
+.best .n::after{content:"best";font:600 9.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--sun);border:1px solid var(--sun);border-radius:4px;padding:2px 4px}
+.cell .d{color:var(--muted);font-size:12.5px;line-height:1.45}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.wins td{font:600 14px var(--mono)}
+/* tray */
+.tray{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--line);z-index:5}
+.tray .in{max-width:1180px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.tray .sels{display:flex;gap:6px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.tray .pill{white-space:nowrap;font-size:13px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 6px 4px 11px;display:flex;gap:4px;align-items:center}
+.tray .pill button{border:0;background:none;color:var(--muted);padding:0 4px}
+.tray .msg{color:var(--muted);font-size:13px}
+footer{margin-top:36px;color:var(--muted);font-size:12.5px;max-width:75ch}
+@media (max-width:820px){
+  .head{grid-template-columns:auto 34px minmax(0,1fr) auto;row-gap:10px;column-gap:10px}
+  .head .cmp{grid-column:1;grid-row:1}
+  .head .rk{grid-column:2;grid-row:1}
+  .head .nm{grid-column:3;grid-row:1}
+  .head .metric{grid-column:4;grid-row:1}
+  .head .strip{grid-column:1/4;grid-row:2}
+  .head .exp{grid-column:4;grid-row:2;justify-self:end}
+  .body{grid-template-columns:1fr}
+  .crit{grid-template-columns:minmax(0,1fr) 30px}
+  .crit .t{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+<div class="wrap">
+<header class="top">
+  <div>
+    <div class="eyebrow">25th anniversary &#xb7; May 25, 2027</div>
+    <h1>Vacay 2027 <span>Explorer</span></h1>
   </div>
+  <div class="facts">
+    <span><b>2 families</b> of 4</span><span><b>7 nights</b>, May 22&#x2013;29</span><span>From <b>MKE / ORD</b></span><span>Budget <b>$4,000</b> pp</span>
+  </div>
+</header>
 
-  <div class="tray" id="tray"><div class="in">
-    <span class="eyebrow">Compare</span>
-    <div class="sels" id="sels"></div>
-    <button class="btn primary" type="button" id="goCmp">View</button>
-  </div></div>
+<section class="panel controls" aria-label="Sort and filter">
+  <div class="field">
+    <label for="sortBy">Order by</label>
+    <div class="row-inline">
+      <select id="sortBy"></select>
+      <button class="btn" id="sortDir" type="button" aria-label="Flip sort direction">&#x2193; Best first</button>
+    </div>
+  </div>
+  <div class="field">
+    <label for="q">Find</label>
+    <input type="search" id="q" placeholder="Island, country, keyword&#x2026;">
+  </div>
+  <div class="field">
+    <label for="maxCost">Max total per person <span class="rangeval" id="maxCostV"></span></label>
+    <input type="range" id="maxCost" min="2000" max="3500" step="50">
+  </div>
+  <div class="field wide">
+    <span class="lab">Only show <span style="text-transform:none;letter-spacing:0">(all selected filters must match)</span></span>
+    <div class="seg" id="filters">
+      <button class="chip" type="button" data-f="sarg" aria-pressed="false">Low sargassum</button>
+      <button class="chip" type="button" data-f="lvl1" aria-pressed="false">Level 1 / US</button>
+      <button class="chip" type="button" data-f="dry" aria-pressed="false">Rain &#x2264; 20%</button>
+      <button class="chip" type="button" data-f="dive" aria-pressed="false">Great diving</button>
+      <button class="chip" type="button" data-f="hike" aria-pressed="false">Good hiking</button>
+      <button class="chip" type="button" data-f="kids" aria-pressed="false">Fun for the kids</button>
+      <button class="chip" type="button" data-f="cruise" aria-pressed="false">Few cruise crowds</button>
+      <button class="chip" type="button" data-f="drive" aria-pressed="false">Easy driving</button>
+    </div>
+  </div>
+</section>
 
-  <script>
-    const DATA = {"weights": {"rom": 0.17, "scenic": 0.17, "sandy": 0.15, "dining": 0.07, "scuba": 0.07, "variety": 0.035, "travel": 0.1, "driving": 0.05, "kids": 0.05, "cruise": 0.05, "weather": 0.05, "hiking": 0.035}, "criteria": [{"key": "rom", "label": "Romantic"}, {"key": "scenic", "label": "Scenic Wow"}, {"key": "sandy", "label": "Sandy Beach Access"}, {"key": "dining", "label": "Dining"}, {"key": "scuba", "label": "SCUBA"}, {"key": "variety", "label": "Variety"}, {"key": "travel", "label": "Travel Time"}, {"key": "driving", "label": "Driving / Roads"}, {"key": "kids", "label": "Adult Kids Appeal"}, {"key": "cruise", "label": "Cruise Crowds"}, {"key": "weather", "label": "Late-May Weather"}, {"key": "hiking", "label": "Hiking"}], "rows": [{"rank": 1, "name": "Grace Bay, Turks & Caicos", "score": 8.35, "value": 2.44, "scores": {"rom": 9, "scenic": 8, "sandy": 10, "dining": 8, "scuba": 9, "variety": 7, "travel": 9, "driving": 7, "kids": 6, "cruise": 9, "weather": 9, "hiking": 2}, "details": {"rom": "Calm, upscale beach resorts built around sunsets; a classic anniversary destination.", "scenic": "Spectacular water color, but a flat, scrubby island with no mountain scenery.", "sandy": "Grace Bay is routinely rated among the world's best beaches: miles of soft white sand on calm, reef-protected water.", "dining": "Strong restaurant scene for its size (Grace Bay Road, Da Conch Shack); prices are high.", "scuba": "World-class wall diving: Northwest Point, West Caicos and French Cay, with good visibility and several established dive shops.", "variety": "Snorkeling, boat trips, Chalk Sound and a little shopping; not much sightseeing.", "travel": "Verified United nonstop, about 4 hrs 15 min; 15-min transfer to Grace Bay.", "driving": "Left-side driving, but flat roads and short distances.", "kids": "Casual beach bars (Da Conch Shack, Bugaloo's), kiteboarding; modest nightlife.", "cruise": "Cruise ships dock at Grand Turk, not Providenciales.", "weather": "One of the driest islands in the region; sunny and breezy. Weather Spark, end of May (Cockburn Town, Grand Turk (proxy)): wind 14.5 mph. Weather Spark has no Providenciales page, so this uses Grand Turk, ~90 mi east. Its 81°F high / 80°F low reflects a tiny, ocean-dominated island; Providenciales' highs are likely a few degrees warmer. Rain and water figures should be close.", "hiking": "Minimal – flat island; short coastal walks (Crossing Place Trail, Chalk Sound)."}, "arrival": "Yes – verified", "drive": "Low", "high": 81, "low": 80, "water": 81, "rain": 21, "clear": 29, "safety": "Level 2 – Exercise increased caution (issued 7/7/2026), crime; strict ammunition laws, so check bags carefully", "sarg": "Medium: Grace Bay faces north behind a reef, but has had episodes in heavy years.", "air": 753, "lodging": 1400, "car": 150, "food": 1120, "total": 3423, "unit": 800, "transport": 600, "foodday": 140, "headroom": 577, "costrisk": "High", "summary": "United nonstop ORD–PLS 10:51a–4:05p; return via Houston lands ORD 10:36p (~$753 Basic Economy). Highest lodging and food costs on the list."}, {"rank": 2, "name": "Soufrière, St. Lucia", "score": 8.05, "value": 2.64, "scores": {"rom": 10, "scenic": 10, "sandy": 6, "dining": 8, "scuba": 8, "variety": 8, "travel": 8, "driving": 3, "kids": 7, "cruise": 7, "weather": 7, "hiking": 10}, "details": {"rom": "Resorts with Pitons views, waterfalls and mud baths; one of the Caribbean's most romantic settings.", "scenic": "Twin Pitons rising from the sea, rainforest and volcanic landscape; the most dramatic scenery on the list.", "sandy": "Beaches near Soufrière are small coves with grey or dark sand; Sugar Beach and Anse Chastanet are the main exceptions.", "dining": "Excellent resort dining with Pitons views and Creole cooking; fewer stand-alone restaurants near Soufrière.", "scuba": "Soufrière Marine Management Area: Anse Chastanet reef from the beach, Superman's Flight drift and walls under the Pitons.", "variety": "Hikes, diving, Sulphur Springs, botanical gardens, waterfalls, and day trips to Rodney Bay.", "travel": "Verified United nonstop, about 5 hrs 45 min, then about a 1-hr winding drive.", "driving": "Left-side driving on steep, winding, potholed roads; most visitors hire drivers instead.", "kids": "Gros Piton climb, ziplining, waterfalls; Rodney Bay and the Gros Islet Friday street party are about 1.5 hrs away.", "cruise": "Castries is a major cruise port and Soufrière gets excursion crowds, but late May is low cruise season.", "weather": "Dry season wraps up in May; warm and humid, with wetter weather from June. Weather Spark, end of May (Soufrière, St. Lucia): wind 16.6 mph. Rain chance rises from 25% to 31% over May; mountain terrain makes showers more frequent but brief. Breezy.", "hiking": "Excellent – Gros Piton (2–3 hrs up, guided), Tet Paul Nature Trail, rainforest trails."}, "arrival": "Yes – verified", "drive": "Moderate", "high": 84, "low": 77, "water": 82, "rain": 31, "clear": 35, "safety": "Level 1 – Exercise normal precautions (issued 7/10/2026)", "sarg": "Low: Soufrière is on the sheltered west coast; the Atlantic east coast takes the sargassum.", "air": 975, "lodging": 1050, "car": 150, "food": 880, "total": 3055, "unit": 600, "transport": 600, "foodday": 110, "headroom": 945, "costrisk": "Medium", "summary": "United nonstop ORD–UVF 8:46a–3:31p; return nonstop lands ORD 6:15p (~$975–1,055). About 1 hr winding drive to Soufrière."}, {"rank": 3, "name": "Bequia / St. Vincent Grenadines", "score": 8.02, "value": 3.11, "scores": {"rom": 10, "scenic": 10, "sandy": 9, "dining": 7, "scuba": 8, "variety": 6, "travel": 4, "driving": 8, "kids": 4, "cruise": 9, "weather": 7, "hiking": 6}, "details": {"rom": "Tiny, unhurried island with a sailboat-filled harbor and candlelit waterfront dinners; very few crowds.", "scenic": "Grenadines island-chain views and a day trip to the Tobago Cays, some of the clearest turquoise water in the Caribbean.", "sandy": "Princess Margaret and Lower Bay are soft golden sand, walkable from Port Elizabeth; beaches are smaller than Grace Bay.", "dining": "Charming waterfront restaurants and fresh seafood, but a short list of options.", "scuba": "Healthy walls and reefs around Bequia (Devil's Table, The Wall) with small, personal dive shops; Tobago Cays turtles by day boat.", "variety": "Beach, boat and dive by design; little shopping or touring.", "travel": "Verified flight via Miami (about 8 hrs), plus a taxi and a 1-hr ferry; the longest trip on the list.", "driving": "No car needed: tiny island with taxis and water taxis (they drive on the left).", "kids": "Very quiet; a few beach bars and sailing.", "cruise": "Only occasional small cruise ships.", "weather": "End of the dry season; showers become more frequent heading into June. Weather Spark, end of May (Port Elizabeth, Bequia): wind 16.7 mph. Low rain chance for late May; steady trade winds. Warmest nights on the list.", "hiking": "Moderate – Mt. Pleasant and Peggy's Rock hikes, Princess Margaret coastal trail; La Soufrière volcano on St. Vincent as a day trip."}, "arrival": "Likely", "drive": "Moderate", "high": 86, "low": 80, "water": 82, "rain": 18, "clear": 34, "safety": "Level 1 – Exercise normal precautions (issued 7/7/2026)", "sarg": "Medium: the Grenadines see periodic sargassum; Lower Bay and Princess Margaret face west and are usually spared.", "air": 945, "lodging": 787.5, "car": 125, "food": 720, "total": 2577.5, "unit": 450, "transport": 500, "foodday": 90, "headroom": 1422.5, "costrisk": "High", "summary": "American via Miami lands St. Vincent (SVD) 2:56p; return 3:09p, lands ORD 11:30p (~$945). The 1-hr Kingstown–Bequia ferry schedule still needs confirming."}, {"rank": 4, "name": "Exuma, Bahamas", "score": 7.89, "value": 2.56, "scores": {"rom": 9, "scenic": 9, "sandy": 10, "dining": 7, "scuba": 8, "variety": 6, "travel": 6, "driving": 7, "kids": 5, "cruise": 9, "weather": 7, "hiking": 2}, "details": {"rom": "Private-feeling cays, empty sandbars and boat days; lodging is low-key rather than luxurious.", "scenic": "Famous electric-blue shallows and sandbars, best seen from a boat; the island itself is flat.", "sandy": "Powder-white sand nearly everywhere: Tropic of Cancer Beach, Coco Plum, and the sandbars.", "dining": "Casual seafood shacks and a few good resort restaurants; limited choice.", "scuba": "Thunderball Grotto, Exuma Cays Land & Sea Park reefs and current-fed drift dives; fewer dive operators than the bigger islands.", "variety": "Swimming-pig boat tour, sandbars and snorkeling; minimal town life.", "travel": "Verified one connection via Miami, about 5.5 hrs; arrives late morning.", "driving": "Left-side driving on one flat main road (Queen's Highway); easy otherwise.", "kids": "Boat adventures and beach bars; little nightlife.", "cruise": "No large cruise port at George Town.", "weather": "Warm; afternoon showers start picking up late May–June. Weather Spark, end of May (George Town, Exuma): wind 12.1 mph. Rain chance climbs through May (start of Bahamas wet season). Water warms from 79°F to 81°F over the month.", "hiking": "Minimal – flat; short trails on Stocking Island to the Atlantic side."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 86, "low": 77, "water": 81, "rain": 29, "clear": 35, "safety": "Level 2 – Exercise increased caution (issued 7/28/2026); crime is concentrated in Nassau and Freeport, lower in the Out Islands", "sarg": "Medium: the Atlantic-facing east side can get sargassum; the sound side and sandbars less so.", "air": 840, "lodging": 1137.5, "car": 150, "food": 960, "total": 3087.5, "unit": 650, "transport": 600, "foodday": 120, "headroom": 912.5, "costrisk": "Medium-High", "summary": "American via Miami 5:00a–11:21a (or 7:00a–1:20p); return 2:35p, lands ORD 10:00p (~$840). Cheaper fares overnight in Miami, so book the early flight."}, {"rank": 5, "name": "St. John, USVI", "score": 7.85, "value": 2.56, "scores": {"rom": 9, "scenic": 9, "sandy": 9, "dining": 7, "scuba": 7, "variety": 7, "travel": 7, "driving": 4, "kids": 6, "cruise": 6, "weather": 8, "hiking": 9}, "details": {"rom": "Quiet island, two-thirds national park, villa-based stays; romantic but casual.", "scenic": "Green hills dropping into bays, with overlooks above Trunk and Cinnamon Bays; very scenic for its size.", "sandy": "Trunk, Cinnamon, Maho and Honeymoon Bay: white sand and calm water; parking fills up at popular beaches.", "dining": "Good small-town dining in Cruz Bay and Coral Bay; limited choice and pricey.", "scuba": "Good boat dives and some of the best snorkeling in the Caribbean inside the national park; fewer standout dive sites.", "variety": "Hiking, beaches, snorkeling, and day trips to St. Thomas.", "travel": "Verified flight to STT (about 7 hrs), plus a taxi and a 20-min ferry.", "driving": "Left-side driving on steep switchback roads; a Jeep is recommended.", "kids": "Cruz Bay bars, hiking and boat days.", "cruise": "St. Thomas cruise passengers day-trip to Trunk Bay; quieter beaches elsewhere.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Cruz Bay, St. John): wind 13.8 mph. Cloudiness increases through May (54% clear-ish on May 1 → 28% on May 31).", "hiking": "Excellent – 60% national park: Ram Head, Reef Bay (petroglyphs), Lind Point."}, "arrival": "Likely", "drive": "Low-Moderate", "high": 86, "low": 79, "water": 82, "rain": 25, "clear": 28, "safety": "US territory – no State Dept advisory; normal precautions", "sarg": "Low: north-shore beaches (Trunk, Cinnamon, Maho) are usually clear; the Coral Bay side can catch some.", "air": 660, "lodging": 1225, "car": 225, "food": 960, "total": 3070, "unit": 700, "transport": 900, "foodday": 120, "headroom": 930, "costrisk": "High", "summary": "American via Charlotte lands STT 2:49p (~$660); United nonstop also available (~$1,035). Then a taxi and the 20-min Red Hook ferry. No passport needed."}, {"rank": 6, "name": "Virgin Gorda, BVI", "score": 7.82, "value": 2.36, "scores": {"rom": 10, "scenic": 9, "sandy": 10, "dining": 7, "scuba": 8, "variety": 7, "travel": 3, "driving": 6, "kids": 5, "cruise": 8, "weather": 8, "hiking": 4}, "details": {"rom": "Secluded coves, small boutique resorts and sunset sails; one of the quietest, most intimate islands in the Caribbean.", "scenic": "Giant granite boulders at The Baths and views over North Sound; hills are low, so a notch below the Pitons.", "sandy": "Savannah Bay, Spring Bay, Devil's Bay and The Baths: soft white sand, calm water, short drives from most lodging.", "dining": "Good resort and beach-bar dining around North Sound and Spanish Town, but a small island with limited range.", "scuba": "RMS Rhone wreck, The Chimney and The Dogs are a short boat ride; a sheltered, beginner-friendly dive area.", "variety": "Beaches, boat days to Anegada or Jost Van Dyke, snorkeling; little shopping or town sightseeing.", "travel": "Verified flight to STT, then a ferry; or about $2,200 to fly all the way via San Juan. The hardest island to reach.", "driving": "Left-side driving on steep but short roads; many visitors use taxis and skip the car.", "kids": "Beach bars (Saba Rock) and boat days to Jost Van Dyke's Soggy Dollar; quiet at night.", "cruise": "No large cruise port; mostly yachts and small ships.", "weather": "Late May is typically dry and warm; the wetter months are Aug–Nov. Weather Spark, end of May (Road Town, Tortola (proxy, ~12 mi)): wind 13.9 mph. No Virgin Gorda page; Road Town is the nearest station and Virgin Gorda is drier and flatter, so rain is likely slightly lower.", "hiking": "Light – Gorda Peak trail (~1 hr) and The Baths-to-Devil's Bay boulder trail."}, "arrival": "Tight", "drive": "Moderate", "high": 86, "low": 78, "water": 82, "rain": 22, "clear": 28, "safety": "Level 1 – Exercise normal precautions (issued 5/22/2026)", "sarg": "Low: Savannah Bay and The Baths face north/west, sheltered from the main Atlantic inflow; east-facing bays can catch some.", "air": 760, "lodging": 1312.5, "car": 200, "food": 1040, "total": 3312.5, "unit": 750, "transport": 800, "foodday": 130, "headroom": 687.5, "costrisk": "High", "summary": "Cheapest route: American via Charlotte lands STT 2:49p (~$660), then a ferry to Spanish Town (schedule not verified). A guaranteed same-day route by air via San Juan to VIJ lands 5:08p but costs about $2,200 pp."}, {"rank": 7, "name": "St. Kitts & Nevis", "score": 7.79, "value": 2.97, "scores": {"rom": 9, "scenic": 9, "sandy": 8, "dining": 8, "scuba": 6, "variety": 8, "travel": 6, "driving": 6, "kids": 7, "cruise": 6, "weather": 8, "hiking": 9}, "details": {"rom": "Plantation-inn stays and a quiet sister island (Nevis) a short ferry ride away.", "scenic": "Volcanic peaks (Mt. Liamuiga, Nevis Peak), rainforest, and a narrow peninsula with sea on both sides.", "sandy": "South Frigate Bay, Cockleshell Bay and Pinney's Beach are good sand; fewer standout beaches than Antigua.", "dining": "Good range, from the South Frigate Bay strip to plantation-house dinners on Nevis.", "scuba": "River Taw wreck and Sandy Point reefs are pleasant; diving is not a highlight.", "variety": "Brimstone Hill fortress (UNESCO), scenic railway, Nevis day trip, beaches.", "travel": "Verified one connection, about 7 hrs.", "driving": "Left-side driving on one main ring road; easy to moderate.", "kids": "Frigate Bay 'Strip' beach bars, ziplining, volcano hike, catamaran trips.", "cruise": "Port Zante is a large cruise port; Nevis is much quieter.", "weather": "Generally dry and pleasant in late May. Weather Spark, end of May (Basseterre, St. Kitts): wind 14.8 mph. Rain chance flat and fairly low through May.", "hiking": "Excellent – Mt. Liamuiga crater (5–6 hrs, guided), rainforest trails, Nevis Peak (strenuous)."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 86, "low": 78, "water": 82, "rain": 19, "clear": 32, "safety": "Level 1 – Exercise normal precautions (issued 7/7/2026)", "sarg": "Medium: the Atlantic side is affected; South Frigate Bay, Cockleshell and Nevis's Pinney's Beach are usually lighter.", "air": 800, "lodging": 875, "car": 150, "food": 800, "total": 2625, "unit": 500, "transport": 600, "foodday": 100, "headroom": 1375, "costrisk": "Medium", "summary": "American via Charlotte 5:10a–1:07p, or Delta via Atlanta lands 2:00p; return 2:36p, lands ORD 9:32p (~$780–800)."}, {"rank": 8, "name": "Antigua", "score": 7.74, "value": 3.16, "scores": {"rom": 9, "scenic": 8, "sandy": 10, "dining": 7, "scuba": 6, "variety": 8, "travel": 6, "driving": 5, "kids": 7, "cruise": 6, "weather": 9, "hiking": 6}, "details": {"rom": "Many secluded beach coves and a sailing-harbor atmosphere at English Harbour.", "scenic": "Rolling green hills and scalloped bays; Shirley Heights lookout is the highlight, less dramatic than volcanic islands.", "sandy": "Known for its '365 beaches' of white sand: Half Moon Bay, Darkwood, Ffryes, Valley Church.", "dining": "Solid but not standout; best around English Harbour and Jolly Harbour.", "scuba": "Cades Reef and Sunken Rock are decent dives, but diving isn't a headline draw here.", "variety": "Nelson's Dockyard (UNESCO), Shirley Heights sunset party, boat trips, many beaches.", "travel": "Verified one connection via Miami or Charlotte, about 7–8 hrs.", "driving": "Left-side driving on narrow, potholed roads; moderate difficulty.", "kids": "Shirley Heights Sunday party, English Harbour bars, boat days.", "cruise": "St. John's is a busy cruise port; resort beaches are usually fine.", "weather": "One of the driest islands in the Caribbean. Weather Spark, end of May (Saint John's, Antigua): wind 15.1 mph. Rain chance flat through May; one of the drier Leewards.", "hiking": "Moderate – Shirley Heights lookout trail, Pillars of Hercules, Mt. Obama."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 85, "low": 78, "water": 81, "rain": 23, "clear": 34, "safety": "Level 1 – Exercise normal precautions (issued 5/20/2026)", "sarg": "Medium: the Atlantic east coast (Half Moon Bay, Long Bay) gets hit in heavy years; west-coast beaches (Darkwood, Ffryes, Valley Church) are usually clear. Book on the west coast.", "air": 710, "lodging": 787.5, "car": 150, "food": 800, "total": 2447.5, "unit": 450, "transport": 600, "foodday": 100, "headroom": 1552.5, "costrisk": "Medium", "summary": "American via Miami 5:00a–1:52p; return 1:21p, lands ORD 10:00p (~$710). East-coast beaches can get sargassum."}, {"rank": 9, "name": "St. Croix, USVI", "score": 7.7, "value": 3.03, "scores": {"rom": 8, "scenic": 8, "sandy": 8, "dining": 8, "scuba": 9, "variety": 8, "travel": 7, "driving": 6, "kids": 6, "cruise": 8, "weather": 8, "hiking": 6}, "details": {"rom": "Quiet and uncrowded, with a romantic Christiansted waterfront and small inns; less polished than St. John.", "scenic": "Rolling green hills, a rainforest on the west end and Point Udall sunrise views; less dramatic than St. John.", "sandy": "Good sand at Shoy's, Isaac Bay, Sandy Point and Buck Island; Cane Bay is rockier.", "dining": "Strong small-town dining in Christiansted and Frederiksted.", "scuba": "Cane Bay wall straight off the beach, the Frederiksted Pier dive (seahorses, night dives) and the Buck Island underwater trail.", "variety": "Buck Island boat trip, Christiansted's Danish colonial history, rum distilleries, rainforest.", "travel": "Verified one connection, about 7 hrs 20 min; 15–20 min to most hotels.", "driving": "Left-side driving, but flatter and wider roads than St. Thomas or St. John.", "kids": "Christiansted boardwalk bars and Frederiksted's Sunday beach scene; moderate nightlife.", "cruise": "Occasional cruise calls at Frederiksted; usually quiet.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Saint Croix, USVI): wind 14.0 mph. Rain chance flat through May.", "hiking": "Moderate – Annaly Bay tide pools, Point Udall, Goat Hill."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 86, "low": 77, "water": 82, "rain": 23, "clear": 28, "safety": "US territory – no State Dept advisory; normal precautions, some crime in towns at night", "sarg": "Low-Medium: the east end and south shore can catch some; the north shore and Buck Island are usually clear.", "air": 635, "lodging": 875, "car": 150, "food": 880, "total": 2540, "unit": 500, "transport": 600, "foodday": 110, "headroom": 1460, "costrisk": "Medium", "summary": "United via Newark 5:00a–1:20p (or Delta via Atlanta, lands 2:00p); return 2:25p, lands ORD 11:42p (~$635). No passport needed."}, {"rank": 10, "name": "Aruba", "score": 7.65, "value": 2.91, "scores": {"rom": 7, "scenic": 6, "sandy": 10, "dining": 9, "scuba": 6, "variety": 8, "travel": 7, "driving": 10, "kids": 8, "cruise": 6, "weather": 10, "hiking": 6}, "details": {"rom": "Resort-heavy and lively; romantic sunsets but less secluded.", "scenic": "Flat desert landscape with cacti; Arikok National Park is the highlight.", "sandy": "Eagle Beach and Palm Beach: wide, soft white sand on calm water.", "dining": "Large, varied restaurant scene.", "scuba": "The Antilla wreck is one of the region's best wreck dives; reef diving is otherwise average.", "variety": "Arikok, Natural Pool, shopping, casinos.", "travel": "Verified one connection, about 7 hrs; 10–15 min to hotels.", "driving": "Right-side driving on flat, well-maintained roads.", "kids": "Palm Beach nightlife, casinos, kitesurfing, ATV tours.", "cruise": "Oranjestad gets cruise ships; Eagle Beach is usually unaffected.", "weather": "Dry, breezy and south of the hurricane belt. Weather Spark, end of May (Oranjestad, Aruba): wind 20.5 mph. Driest on the list (4%) but windiest (20+ mph) — great for keeping cool, can make boat dives choppy. Weather Spark gives no May 31 cloud value; 21% is implied by its 'about 79% overcast/mostly cloudy all month'. Its 'cloudy' here is mostly fair-weather trade-wind cloud, not rain.", "hiking": "Moderate – Arikok National Park (Natural Pool, Jamanota); hot by midday."}, "arrival": "Yes – verified", "drive": "Low", "high": 89, "low": 80, "water": 81, "rain": 4, "clear": 21, "safety": "Level 1 – Exercise normal precautions (issued 8/20/2026)", "sarg": "Low: south of the main sargassum belt; west-coast beaches are rarely affected.", "air": 747, "lodging": 875, "car": 125, "food": 880, "total": 2627, "unit": 500, "transport": 500, "foodday": 110, "headroom": 1373, "costrisk": "Low", "summary": "American via Charlotte or Miami lands 1:15–3:09p; return 2:33p, lands ORD 11:30p (~$747). Outside the hurricane belt."}, {"rank": 11, "name": "St. Martin / Sint Maarten", "score": 7.5, "value": 2.88, "scores": {"rom": 8, "scenic": 7, "sandy": 9, "dining": 10, "scuba": 6, "variety": 9, "travel": 6, "driving": 7, "kids": 9, "cruise": 3, "weather": 8, "hiking": 6}, "details": {"rom": "Romantic French side (Grand Case, Orient Bay), but the Dutch side is a busy cruise port.", "scenic": "Green hills and bays; pleasant rather than dramatic.", "sandy": "Orient Bay, Mullet Bay and Baie Rouge are very good sand.", "dining": "Grand Case is often called the culinary capital of the Caribbean.", "scuba": "HMS Proselyte wreck and Man of War Shoal marine park; decent but not a destination for divers.", "variety": "Two countries, shopping, day trips to St. Barts.", "travel": "Verified one connection, about 7 hrs.", "driving": "Right-side driving, but heavy traffic around Simpson Bay and Philipsburg.", "kids": "Lively: Maho Beach, Orient Bay beach clubs, casinos, varied nightlife.", "cruise": "One of the busiest cruise ports in the Caribbean.", "weather": "Generally dry in late May. Weather Spark, end of May (Philipsburg, Sint Maarten): wind 14.5 mph. Lowest rain chance outside the ABC islands.", "hiking": "Moderate – Pic Paradis, Loterie Farm, Tintamarre trail on the French side."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 86, "low": 78, "water": 82, "rain": 16, "clear": 31, "safety": "Level 1 – Exercise normal precautions (Sint Maarten 8/24/2026; French Saint Martin 8/14/2026)", "sarg": "Medium: Orient Bay (east) is frequently hit; Mullet Bay and Baie Rouge on the west side are usually clear. Book on the west side.", "air": 703, "lodging": 875, "car": 150, "food": 880, "total": 2608, "unit": 500, "transport": 600, "foodday": 110, "headroom": 1392, "costrisk": "Medium", "summary": "American via Miami 5:00a–1:16p (United via Newark lands 2:43p); return 12:15p, lands ORD 9:32p (~$703)."}, {"rank": 12, "name": "Bayahibe / La Romana, Dominican Republic", "score": 7.49, "value": 3.65, "scores": {"rom": 8, "scenic": 8, "sandy": 9, "dining": 7, "scuba": 7, "variety": 8, "travel": 8, "driving": 4, "kids": 7, "cruise": 6, "weather": 6, "hiking": 6}, "details": {"rom": "Casa de Campo and quiet Bayahibe beach resorts on calm Caribbean water.", "scenic": "Palm-lined white beaches on Saona and Catalina islands; the mainland itself is flat.", "sandy": "Bayahibe, Dominicus and Saona Island: soft white sand and calm water.", "dining": "Good dining at Casa de Campo and Altos de Chavón; limited elsewhere.", "scuba": "Catalina Island wall, the St. George wreck and the Guadalupe underwater museum; the best diving in the DR.", "variety": "Saona Island boat day, the Altos de Chavón artists' village, caves, golf.", "travel": "Verified nonstop, about 4 hrs 40 min, then about a 1-hr transfer.", "driving": "Right-side driving, but Dominican roads and driving are chaotic; use transfers.", "kids": "Catamaran party trips to Saona, beach bars, Casa de Campo marina.", "cruise": "La Romana and Catalina Island are cruise stops, and Saona gets day-trip crowds.", "weather": "May is the start of the rainy season; hot. Weather Spark, end of May (La Romana, DR (~12 mi from Bayahibe)): wind 10.4 mph. Hot days, coolest nights, lightest wind on the list. Rain chance flat at 18%.", "hiking": "Moderate – Padre Nuestro and Cueva del Puente cave trails in Cotubanamá National Park."}, "arrival": "Yes – verified", "drive": "Moderate", "high": 88, "low": 74, "water": 82, "rain": 18, "clear": 26, "safety": "Level 2 – Exercise increased caution (issued 6/12/2025)", "sarg": "Medium: the south coast is less exposed than Punta Cana but has had arrivals in heavy years; check the 2027 outlook.", "air": 507, "lodging": 700, "car": 125, "food": 720, "total": 2052, "unit": 400, "transport": 500, "foodday": 90, "headroom": 1948, "costrisk": "Medium", "summary": "Nonstops both ways: American 8:30a–2:11p into Punta Cana, Arajet back 7:02a–11:12a (~$507, the cheapest on the list). About a 1-hr transfer to Bayahibe, so the return morning starts before dawn."}, {"rank": 13, "name": "Negril, Jamaica", "score": 7.48, "value": 2.92, "scores": {"rom": 8, "scenic": 7, "sandy": 10, "dining": 7, "scuba": 6, "variety": 8, "travel": 7, "driving": 4, "kids": 9, "cruise": 9, "weather": 6, "hiking": 4}, "details": {"rom": "Cliff-top sunset dinners on the West End and relaxed beach resorts; parts of Seven Mile Beach are lively.", "scenic": "Dramatic West End limestone cliffs, but Seven Mile Beach itself is flat. Western Jamaica was hit hard by Hurricane Melissa (Oct 2025) and some areas are still recovering.", "sandy": "Seven Mile Beach: long, soft, calm white sand in front of most hotels.", "dining": "Good casual dining, jerk and seafood; few fine-dining spots.", "scuba": "West End reef and cave dives are fine, but reefs are overfished and less vibrant than the top sites.", "variety": "Rick's Café cliffs, Black River safari, YS Falls, river rafting.", "travel": "Verified United nonstop (4 hrs 10 min), then about a 1.5-hr drive.", "driving": "Left-side driving and demanding road conditions; most visitors use transfers.", "kids": "Rick's Café cliff jumping, beach bars, live reggae, rafting.", "cruise": "No cruise port nearby.", "weather": "May is one of Jamaica's wetter months (first rainy period May–June). Weather Spark, end of May (Negril, Jamaica): wind 11.8 mph. Wettest on the list: rainy season is under way by late May (44% chance of a wet day), usually afternoon storms. Warmest water.", "hiking": "Light – cliff walks; YS Falls and Mayfield Falls river walks as day trips."}, "arrival": "Yes – verified", "drive": "Moderate", "high": 86, "low": 77, "water": 83, "rain": 44, "clear": 25, "safety": "Level 2 – Exercise increased caution (issued 6/23/2026)", "sarg": "Low-Medium: west-facing Seven Mile Beach is usually spared; Jamaica's south and east coasts take most of it.", "air": 930, "lodging": 787.5, "car": 125, "food": 720, "total": 2562.5, "unit": 450, "transport": 500, "foodday": 90, "headroom": 1437.5, "costrisk": "Medium", "summary": "United nonstop ORD–MBJ 8:40a–12:50p; return nonstop 1:52p lands ORD 6:15p (~$930). About 1.5-hr drive to Negril. Confirm your resort has reopened after Hurricane Melissa."}, {"rank": 14, "name": "Abaco, Bahamas", "score": 7.47, "value": 2.38, "scores": {"rom": 8, "scenic": 8, "sandy": 9, "dining": 7, "scuba": 7, "variety": 7, "travel": 7, "driving": 6, "kids": 6, "cruise": 9, "weather": 7, "hiking": 2}, "details": {"rom": "Loyalist-era cay villages (Hope Town, Man-O-War) and quiet beaches; low-key and charming.", "scenic": "Turquoise Sea of Abaco channels dotted with cays and the candy-striped Hope Town lighthouse.", "sandy": "Treasure Cay Beach is among the best in the Bahamas; more cay beaches by boat.", "dining": "Casual waterfront restaurants on the cays; limited fine dining.", "scuba": "Fowl Cay reef preserve, wrecks and blue holes; dive operations are still rebuilding after Hurricane Dorian (2019).", "variety": "Cay-hopping by rental boat, Hope Town, Nippers on Guana Cay; some areas still rebuilding since Hurricane Dorian (2019).", "travel": "Verified one connection, about 5 hrs; arrives around 1p.", "driving": "Left-side driving on flat roads; boats and golf carts on the cays.", "kids": "Nippers Sunday pig roast and beach bars, boating; little nightlife.", "cruise": "No cruise port.", "weather": "Warm; afternoon showers increase late May–June. Weather Spark, end of May (Marsh Harbour, Abaco): wind 11.0 mph. Sunniest skies on the list but rain chance doubles over May (15% → 31%). Coolest water (80°F) — 3mm wetsuit comfortable for divers.", "hiking": "Minimal – flat; nature walks in Abaco National Park."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 84, "low": 76, "water": 80, "rain": 31, "clear": 42, "safety": "Level 2 – Exercise increased caution (issued 7/28/2026)", "sarg": "Medium: Atlantic-facing cay beaches can get sargassum; Treasure Cay and the Sea of Abaco side are more sheltered.", "air": 871, "lodging": 1137.5, "car": 175, "food": 960, "total": 3143.5, "unit": 650, "transport": 700, "foodday": 120, "headroom": 856.5, "costrisk": "Medium-High", "summary": "American via Charlotte 6:55a–12:59p; return 12:01p, lands ORD 9:32p (~$871). Plan on rental boats for the cays."}, {"rank": 15, "name": "Tortola / Jost Van Dyke, BVI", "score": 7.45, "value": 2.34, "scores": {"rom": 8, "scenic": 9, "sandy": 8, "dining": 7, "scuba": 9, "variety": 8, "travel": 5, "driving": 3, "kids": 8, "cruise": 6, "weather": 8, "hiking": 6}, "details": {"rom": "Villa stays and beach bars; more lived-in than Virgin Gorda.", "scenic": "Mountainous green island with sweeping views of the BVI chain.", "sandy": "Cane Garden Bay and Smuggler's Cove; White Bay on Jost Van Dyke is the standout.", "dining": "Casual waterfront dining and beach bars; few fine-dining options.", "scuba": "RMS Rhone, The Indians, Wreck Alley and dozens of BVI sites within short boat rides.", "variety": "Island-hopping boat days are the main event.", "travel": "Verified via San Juan, about 8 hrs 40 min; or STT plus a 45–60 min ferry.", "driving": "Left-side driving on some of the steepest roads in the Caribbean.", "kids": "Island-hopping boat days and famous beach bars (Soggy Dollar, Foxy's, Willy T).", "cruise": "Road Town gets cruise ships, and Jost Van Dyke is busy on day-trip days.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Road Town, Tortola): wind 13.9 mph. Same station as Virgin Gorda.", "hiking": "Moderate – Sage Mountain National Park; Bubbly Pool walk on Jost Van Dyke."}, "arrival": "Yes – verified", "drive": "Moderate", "high": 86, "low": 78, "water": 82, "rain": 22, "clear": 28, "safety": "Level 1 – Exercise normal precautions (issued 5/22/2026)", "sarg": "Low: north-shore beaches face away from the main inflow.", "air": 1168, "lodging": 962.5, "car": 175, "food": 880, "total": 3185.5, "unit": 550, "transport": 700, "foodday": 110, "headroom": 814.5, "costrisk": "Medium-High", "summary": "United + Cape Air via San Juan lands Beef Island 6:30p; return 7:15a, lands ORD 9:47p (~$1,168). Cheaper option: fly to STT (~$660) and take the ferry (schedule not verified)."}, {"rank": 16, "name": "Barbados", "score": 7.39, "value": 2.82, "scores": {"rom": 8, "scenic": 7, "sandy": 9, "dining": 9, "scuba": 7, "variety": 8, "travel": 6, "driving": 5, "kids": 8, "cruise": 6, "weather": 8, "hiking": 4}, "details": {"rom": "Upscale west-coast resorts and sunset dinners; busier and more developed.", "scenic": "Gentle, rolling landscape; the rugged east coast at Bathsheba is the scenic highlight.", "sandy": "Calm white-sand west and south coasts (Mullins, Carlisle Bay, Crane Beach).", "dining": "One of the strongest restaurant scenes in the Caribbean, plus the Oistins fish fry.", "scuba": "Carlisle Bay wrecks with turtles and the Stavronikita wreck; easy dives for mixed certification levels.", "variety": "Harrison's Cave, rum distilleries, plantation houses.", "travel": "Verified one connection, about 7 hrs 45 min.", "driving": "Left-side driving with narrow lanes, many roundabouts and patchy signage.", "kids": "St. Lawrence Gap nightlife, Oistins Friday fish fry, catamaran trips.", "cruise": "Bridgetown is a busy cruise port.", "weather": "End of the dry season; usually still pleasant in late May. Weather Spark, end of May (Bridgetown, Barbados): wind 17.0 mph. Rain chance rising quickly late in May but still low; breezy.", "hiking": "Light – east-coast walks, Hackleton's Cliff; National Trust Sunday hikes."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 86, "low": 79, "water": 82, "rain": 17, "clear": 37, "safety": "Level 1 – Exercise normal precautions (issued 4/10/2026)", "sarg": "Medium: the east and south coasts are often hit; the calm west coast (Mullins, Holetown) is usually lighter. Book on the west coast.", "air": 799, "lodging": 875, "car": 150, "food": 800, "total": 2624, "unit": 500, "transport": 600, "foodday": 100, "headroom": 1376, "costrisk": "Medium", "summary": "American via Charlotte 5:10a–1:56p; return 8:00a, lands ORD 5:09p (~$799)."}, {"rank": 17, "name": "Curaçao", "score": 7.37, "value": 3.18, "scores": {"rom": 8, "scenic": 7, "sandy": 6, "dining": 8, "scuba": 9, "variety": 8, "travel": 6, "driving": 9, "kids": 7, "cruise": 6, "weather": 10, "hiking": 7}, "details": {"rom": "Colorful Willemstad and small cove beaches; pleasant rather than intimate.", "scenic": "Arid, rugged west coast and the UNESCO-listed Willemstad waterfront.", "sandy": "Small coves, often with coral or pebbles; Grote Knip and Cas Abao are nice but small.", "dining": "Good, varied dining in Willemstad.", "scuba": "Excellent, easy shore diving along the west coast (Tugboat, Mushroom Forest); good for a group with mixed certification.", "variety": "Willemstad, Christoffel Park, boat trips.", "travel": "Verified one connection, about 7.5 hrs.", "driving": "Right-side driving on good roads.", "kids": "Willemstad bars, beach clubs, live music.", "cruise": "Willemstad is a regular cruise port.", "weather": "Dry, breezy and south of the hurricane belt. Weather Spark, end of May (Willemstad, Curaçao): wind 19.5 mph. Arid and very dry; strong trade winds keep it comfortable. Wind can make east-side water rough; west-side dive sites stay calm.", "hiking": "Good – Christoffel Park (Mt. Christoffel, ~1–1.5 hrs; start early) and Shete Boka."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 88, "low": 80, "water": 81, "rain": 4, "clear": 25, "safety": "Level 1 – Exercise normal precautions (issued 9/9/2026)", "sarg": "Low: south of the main sargassum belt; rarely affected.", "air": 809, "lodging": 700, "car": 125, "food": 680, "total": 2314, "unit": 400, "transport": 500, "foodday": 85, "headroom": 1686, "costrisk": "Low", "summary": "American via Miami 5:00a–1:41p (~$809); United's return via Newark lands ORD 11:42p. Avoid Copa, whose routings overnight in Panama."}, {"rank": 17, "name": "St. Thomas, USVI", "score": 7.37, "value": 2.61, "scores": {"rom": 7, "scenic": 8, "sandy": 9, "dining": 8, "scuba": 7, "variety": 8, "travel": 9, "driving": 4, "kids": 7, "cruise": 3, "weather": 8, "hiking": 4}, "details": {"rom": "Busy cruise port; romantic pockets on the east end.", "scenic": "Hilly island with harbor views over Charlotte Amalie and the BVI.", "sandy": "Magens Bay, Sapphire and Lindqvist: white sand, crowded on cruise days.", "dining": "The most dining choice in the USVI.", "scuba": "Cow and Calf rocks, the Buck Island cargo-ship wreck and many boat dives; well organized but busy.", "variety": "Shopping, ferries to St. John, Coki Point, history.", "travel": "Verified United nonstop (about 6 hrs) or one-stop American (about 7 hrs).", "driving": "Left-side driving on steep, congested roads.", "kids": "Bars, shopping, boat days to St. John and the BVI.", "cruise": "One of the busiest cruise ports in the Caribbean; Magens Bay is crowded on ship days.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Charlotte Amalie, St. Thomas): wind 13.7 mph. Rain chance rises to 29% by May 31.", "hiking": "Light – short trails (Magens Bay, Mountain Top)."}, "arrival": "Yes – verified", "drive": "Low-Moderate", "high": 86, "low": 78, "water": 82, "rain": 29, "clear": 28, "safety": "US territory – no State Dept advisory; normal precautions, some crime around Charlotte Amalie", "sarg": "Low: Magens Bay faces north and is sheltered.", "air": 660, "lodging": 1050, "car": 150, "food": 960, "total": 2820, "unit": 600, "transport": 600, "foodday": 120, "headroom": 1180, "costrisk": "Medium", "summary": "American via Charlotte 6:55a–2:49p (~$660) or United nonstop 10:59a–5:00p (~$1,035); return lands ORD by 11:30p. No passport needed."}, {"rank": 19, "name": "Nassau / Paradise Island, Bahamas", "score": 6.68, "value": 2.27, "scores": {"rom": 6, "scenic": 6, "sandy": 9, "dining": 8, "scuba": 7, "variety": 9, "travel": 7, "driving": 6, "kids": 8, "cruise": 2, "weather": 7, "hiking": 2}, "details": {"rom": "Big resorts and a busy cruise port; less intimate.", "scenic": "Flat with pretty water, but an urban feel.", "sandy": "Cabbage Beach and Cable Beach: good white sand.", "dining": "Wide choice of restaurants.", "scuba": "Shark dives, wrecks and the James Bond movie sites; good operators, more crowded.", "variety": "Resort amenities, boat day trips to Exuma, nightlife.", "travel": "Verified one connection, about 7 hrs.", "driving": "Left-side driving and congested roads, but taxis are easy.", "kids": "Resort amenities, casinos, nightlife, water parks.", "cruise": "Among the busiest cruise ports in the world.", "weather": "Warm; afternoon showers start picking up late May–June. Weather Spark, end of May (Nassau, Bahamas): wind 11.1 mph. Rain chance more than doubles over May (12% → 28%) as the Bahamas wet season begins.", "hiking": "Minimal – flat; Clifton Heritage Park and Primeval Forest walks."}, "arrival": "Yes – verified", "drive": "Low", "high": 86, "low": 76, "water": 81, "rain": 28, "clear": 40, "safety": "Level 2 – Exercise increased caution (issued 7/28/2026); crime concentrated in Nassau, mostly outside tourist zones", "sarg": "Low: north-facing Cable and Cabbage Beaches are seldom affected.", "air": 745, "lodging": 1137.5, "car": 100, "food": 960, "total": 2942.5, "unit": 650, "transport": 400, "foodday": 120, "headroom": 1057.5, "costrisk": "Medium", "summary": "JetBlue via Fort Lauderdale 7:00a–1:52p; return lands ORD 11:44p, cutting it close (~$745)."}, {"rank": 20, "name": "Bonaire", "score": 6.57, "value": 3.0, "scores": {"rom": 7, "scenic": 6, "sandy": 4, "dining": 7, "scuba": 10, "variety": 6, "travel": 6, "driving": 10, "kids": 4, "cruise": 7, "weather": 10, "hiking": 6}, "details": {"rom": "Quiet and low-key; romantic for divers, otherwise sleepy.", "scenic": "Flat, arid island with flamingo salt flats.", "sandy": "Mostly coral and rocky shoreline; very few soft sandy beaches.", "dining": "Small but decent restaurant scene in Kralendijk.", "scuba": "World-class shore diving throughout a protected marine park; 80+ marked sites reachable by car.", "variety": "Diving, flamingos, Washington-Slagbaai park.", "travel": "Verified one connection, about 8 hrs.", "driving": "Right-side driving; flat and easy, with pickups common for shore diving.", "kids": "Very quiet; geared to divers.", "cruise": "Cruise ships call, but most beaches are dive sites away from the port.", "weather": "Dry, breezy and south of the hurricane belt. Weather Spark, end of May (Kralendijk, Bonaire): wind 19.2 mph. Arid and very dry; windy. Leeward shore diving stays calm despite the wind.", "hiking": "Moderate – Washington Slagbaai National Park (Brandaris hill); hot."}, "arrival": "Yes – verified", "drive": "Low", "high": 88, "low": 80, "water": 81, "rain": 4, "clear": 26, "safety": "Level 1 – Exercise normal precautions (issued 8/20/2026)", "sarg": "Low: south of the main sargassum belt; rarely affected.", "air": 646, "lodging": 700, "car": 125, "food": 720, "total": 2191, "unit": 400, "transport": 500, "foodday": 90, "headroom": 1809, "costrisk": "Low", "summary": "American via Miami 6:08a–3:26p; return 2:22p, lands ORD 11:30p (~$646)."}]};
-    const R = DATA.rows, CRIT = DATA.criteria, SHEETW = DATA.weights;
-    const $ = s => document.querySelector(s);
-    const esc = s => String(s ?? "").replace(/[&<>\"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
-    const money = n => "$" + Math.round(n).toLocaleString("en-US");
-    const ord = {
-      sarg: r => /^Low:/.test(r.sarg) ? 1 : /^Low-Medium/.test(r.sarg) ? 2 : /^Medium-High/.test(r.sarg) ? 4 : /^Medium/.test(r.sarg) ? 3 : 5,
-      safety: r => /Level 1|US territory/.test(r.safety) ? 1 : /Level 2/.test(r.safety) ? 2 : 3,
-      arrival: r => /verified/i.test(r.arrival) ? 1 : /Likely/.test(r.arrival) ? 2 : 3,
-      drive: r => ({"Low":1,"Low-Moderate":2,"Moderate":3}[r.drive] || 4),
-      costrisk: r => ({"Low":1,"Medium":2,"Medium-High":3,"High":4}[r.costrisk] || 5)
-    };
-    const short = {
-      sarg: r => r.sarg.split(":")[0],
-      safety: r => /US territory/.test(r.safety) ? "US territory" : (r.safety.match(/Level \d/)||[""])[0],
-      arrival: r => r.arrival.replace(" – verified"," (verified)")
-    };
-    let W = {...SHEETW};
-    const r2 = v => Math.round(v*100+1e-6)/100;
-    const live = r => { let s=0,t=0; for (const c of CRIT){ s+=W[c.key]*r.scores[c.key]; t+=W[c.key]; } return t ? r2(s/t) : 0; };
-    const M = [
-      {k:"score", l:"Weighted score", g:"Overall", get:live, fmt:v=>v.toFixed(2), b:"high"},
-      {k:"value", l:"Value index (score per $1k)", g:"Overall", get:r=>r2(live(r)/(r.total/1000)), fmt:v=>v.toFixed(2), b:"high"},
-      ...CRIT.map(c => ({k:c.key, l:c.label, g:"Ranking criteria", get:r=>r.scores[c.key], fmt:v=>String(v), b:"high", crit:true, why:r=>r.details[c.key]})),
-      {k:"total", l:"Total per person", g:"Cost per person", get:r=>r.total, fmt:money, b:"low"},
-      {k:"headroom", l:"Budget headroom", g:"Cost per person", get:r=>r.headroom, fmt:money, b:"high"},
-      {k:"air", l:"Airfare", g:"Cost per person", get:r=>r.air, fmt:money, b:"low"},
-      {k:"lodging", l:"Lodging", g:"Cost per person", get:r=>r.lodging, fmt:money, b:"low"},
-      {k:"car", l:"Car / taxis", g:"Cost per person", get:r=>r.car, fmt:money, b:"low"},
-      {k:"food", l:"Food", g:"Cost per person", get:r=>r.food, fmt:money, b:"low"},
-      {k:"rain", l:"Rain chance, late May", g:"Late-May weather", get:r=>r.rain, fmt:v=>v+"%", b:"low"},
-      {k:"water", l:"Water temp", g:"Late-May weather", get:r=>r.water, fmt:v=>v+"°F", b:"high"},
-      {k:"clear", l:"Clear sky", g:"Late-May weather", get:r=>r.clear, fmt:v=>v+"%", b:"high"},
-      {k:"high", l:"Avg high", g:"Late-May weather", get:r=>r.high, fmt:v=>v+"°F", b:"low", nb:true},
-      {k:"low", l:"Avg low", g:"Late-May weather", get:r=>r.low, fmt:v=>v+"°F", b:"low", nb:true},
-      {k:"arrival", l:"Arrival before midnight", g:"Logistics & risk", get:ord.arrival, fmt:(v,r)=>short.arrival(r), b:"low", why:r=>r.details.travel},
-      {k:"drive", l:"Drive burden", g:"Logistics & risk", get:ord.drive, fmt:(v,r)=>r.drive, b:"low"},
-      {k:"safety", l:"Safety advisory", g:"Logistics & risk", get:ord.safety, fmt:(v,r)=>short.safety(r), b:"low", why:r=>r.safety},
-      {k:"sarg", l:"Sargassum risk", g:"Logistics & risk", get:ord.sarg, fmt:(v,r)=>short.sarg(r), b:"low", why:r=>r.sarg.split(": ").slice(1).join(": ")},
-      {k:"costrisk", l:"Cost risk", g:"Logistics & risk", get:ord.costrisk, fmt:(v,r)=>r.costrisk, b:"low"},
-    ];
-    const MK = Object.fromEntries(M.map(m=>[m.k,m]));
-    const range = {};
-    function calcRanges(){ for (const m of M){ const v=R.map(m.get); range[m.k]=[Math.min(...v),Math.max(...v)]; } }
-    const pct = (m,v) => { const [a,b]=range[m.k]; if (b===a) return 100; const p=(v-a)/(b-a); return Math.round(8+92*(m.b==="high"?p:1-p)); };
+<details class="panel weights" id="wpanel">
+  <summary><span class="caret">&#x25b8;</span><h2>Adjust the weights</h2><span class="hint" id="whint">Using the weights from your Travel Constraints tab.</span></summary>
+  <div class="wgrid" id="wgrid"></div>
+  <div class="wfoot"><span>Total <span class="sum" id="wsum"></span> &#xb7; scores are normalized, so the total doesn't need to be 100%.</span><button class="btn" type="button" id="wreset">Reset to sheet weights</button></div>
+</details>
 
-    const sheetRank = Object.fromEntries(R.map(r=>[r.name,r.rank]));
-    const st = {sort:"score", dir:1, q:"", max:3500, f:{}, sel:[R[0].name,R[1].name,R[2].name], open:{}, why:false, diff:false};
-    const store = { get(){ try{ return JSON.parse(localStorage.getItem("vacay27x-v16")||"null"); }catch(e){ return null; } },
-                  set(){ try{ localStorage.setItem("vacay27x-v16", JSON.stringify({sort:st.sort,dir:st.dir,max:st.max,f:st.f,sel:st.sel,why:st.why,diff:st.diff,W})); }catch(e){} } };
-    const saved = store.get();
-    if (saved){ Object.assign(st, {sort:saved.sort in MK?saved.sort:"score", dir:saved.dir||1, max:saved.max||3500, f:saved.f||{}, sel:(saved.sel||st.sel).filter(n=>sheetRank[n]), why:!!saved.why, diff:!!saved.diff});
-      if (saved.W) for (const k in SHEETW) if (typeof saved.W[k]==="number") W[k]=saved.W[k]; }
+<div class="status">
+  <h2 id="countH">20 destinations</h2>
+  <div class="legend" aria-hidden="true">Criterion score <i style="background:color-mix(in srgb,var(--accent) 12%,var(--surface))"></i>low <i style="background:color-mix(in srgb,var(--accent) 95%,var(--surface))"></i>high &#xb7; tick a box to compare</div>
+</div>
+<div class="list" id="list"></div>
 
-    function liveRanks(){ const s=[...R].sort((a,b)=>live(b)-live(a)); const out={}; let prev=null, rk=0;
-      s.forEach((r,i)=>{ const v=live(r); if (v!==prev){ rk=i+1; prev=v; } out[r.name]=rk; }); return out; }
+<section id="compare" aria-labelledby="cmpH">
+  <div class="cmphead">
+    <div><div class="eyebrow">Side by side</div><h2 id="cmpH">Compare</h2></div>
+    <div class="cmpopts">
+      <button class="chip" type="button" id="showWhy" aria-pressed="false">Show the reasoning</button>
+      <button class="chip" type="button" id="diffOnly" aria-pressed="false">Only rows that differ</button>
+      <button class="btn" type="button" id="clearCmp">Clear</button>
+    </div>
+  </div>
+  <div id="cmpBody"></div>
+</section>
 
-    function cellBg(s){ const p = Math.round(6 + (s-1)/9*89); return `background:color-mix(in srgb,var(--accent) ${p}%,var(--surface));color:${s>=7?"var(--on-accent)":"var(--ink)"}`; }
-    const critByW = () => [...CRIT].sort((a,b)=>W[b.key]-W[a.key]);
+<footer>
+  Scores, details, costs and flights come from the Vacay 2027 Top 20 sheet (v17, Oct 12, 2026). SCUBA scores diving only; Hiking is its own weighted criterion. Weather is Weather Spark's end-of-May climate average; Grace Bay uses Grand Turk, Virgin Gorda uses Road Town and Bayahibe uses La Romana. Costs are per person for 7 nights and exclude dives, tours and checked bags. Safety levels are US State Department advisories as of Oct 12, 2026.
+</footer>
+</div>
 
-    function tags(r){
-      const t=[];
-      const a=ord.arrival(r); t.push(`<span class="tag ${a===1?"good":a===2?"warn":"bad"}">${a===1?"Same-day ✓":a===2?"Same-day likely":"Same-day tight"}</span>`);
-      const s=ord.sarg(r); t.push(`<span class="tag ${s===1?"good":s===2?"":"warn"}">Sargassum ${esc(short.sarg(r).toLowerCase())}</span>`);
-      t.push(`<span class="tag ${ord.safety(r)===1?"good":""}">${esc(short.safety(r))}</span>`);
-      t.push(`<span class="tag ${r.rain<=10?"good":r.rain>=30?"warn":""}">${r.rain}% rain</span>`);
-      t.push(`<span class="tag">${money(r.total)} pp</span>`);
-      return t.join("");
+<div class="tray" id="tray"><div class="in">
+  <span class="eyebrow">Compare</span>
+  <div class="sels" id="sels"></div>
+  <button class="btn primary" type="button" id="goCmp">View</button>
+</div></div>
+<script>
+const DATA = {"weights": {"rom": 0.17, "scenic": 0.17, "sandy": 0.15, "dining": 0.07, "scuba": 0.07, "variety": 0.035, "travel": 0.1, "driving": 0.05, "kids": 0.05, "cruise": 0.05, "weather": 0.05, "hiking": 0.035}, "criteria": [{"key": "rom", "label": "Romantic"}, {"key": "scenic", "label": "Scenic Wow"}, {"key": "sandy", "label": "Sandy Beach Access"}, {"key": "dining", "label": "Dining"}, {"key": "scuba", "label": "SCUBA"}, {"key": "variety", "label": "Variety"}, {"key": "travel", "label": "Travel Time"}, {"key": "driving", "label": "Driving / Roads"}, {"key": "kids", "label": "Adult Kids Appeal"}, {"key": "cruise", "label": "Cruise Crowds"}, {"key": "weather", "label": "Late-May Weather"}, {"key": "hiking", "label": "Hiking"}], "rows": [{"rank": 1, "name": "Grace Bay, Turks & Caicos", "score": 8.35, "value": 2.44, "scores": {"rom": 9, "scenic": 8, "sandy": 10, "dining": 8, "scuba": 9, "variety": 7, "travel": 9, "driving": 7, "kids": 6, "cruise": 9, "weather": 9, "hiking": 2}, "details": {"rom": "Calm, upscale beach resorts built around sunsets; a classic anniversary destination.", "scenic": "Spectacular water color, but a flat, scrubby island with no mountain scenery.", "sandy": "Grace Bay is routinely rated among the world's best beaches: miles of soft white sand on calm, reef-protected water.", "dining": "Strong restaurant scene for its size (Grace Bay Road, Da Conch Shack); prices are high.", "scuba": "World-class wall diving: Northwest Point, West Caicos and French Cay, with good visibility and several established dive shops.", "variety": "Snorkeling, boat trips, Chalk Sound and a little shopping; not much sightseeing.", "travel": "Verified United nonstop, about 4 hrs 15 min; 15-min transfer to Grace Bay.", "driving": "Left-side driving, but flat roads and short distances.", "kids": "Casual beach bars (Da Conch Shack, Bugaloo's), kiteboarding; modest nightlife.", "cruise": "Cruise ships dock at Grand Turk, not Providenciales.", "weather": "One of the driest islands in the region; sunny and breezy. Weather Spark, end of May (Cockburn Town, Grand Turk (proxy)): wind 14.5 mph. Weather Spark has no Providenciales page, so this uses Grand Turk, ~90 mi east. Its 81\u00b0F high / 80\u00b0F low reflects a tiny, ocean-dominated island; Providenciales' highs are likely a few degrees warmer. Rain and water figures should be close.", "hiking": "Minimal \u2013 flat island; short coastal walks (Crossing Place Trail, Chalk Sound)."}, "arrival": "Yes \u2013 verified", "drive": "Low", "high": 81, "low": 80, "water": 81, "rain": 21, "clear": 29, "safety": "Level 2 \u2013 Exercise increased caution (issued 7/7/2026), crime; strict ammunition laws, so check bags carefully", "sarg": "Medium: Grace Bay faces north behind a reef, but has had episodes in heavy years.", "air": 753, "lodging": 1400, "car": 150, "food": 1120, "total": 3423, "unit": 800, "transport": 600, "foodday": 140, "headroom": 577, "costrisk": "High", "summary": "United nonstop ORD\u2013PLS 10:51a\u20134:05p; return via Houston lands ORD 10:36p (~$753 Basic Economy). Highest lodging and food costs on the list."}, {"rank": 2, "name": "Soufri\u00e8re, St. Lucia", "score": 8.05, "value": 2.64, "scores": {"rom": 10, "scenic": 10, "sandy": 6, "dining": 8, "scuba": 8, "variety": 8, "travel": 8, "driving": 3, "kids": 7, "cruise": 7, "weather": 7, "hiking": 10}, "details": {"rom": "Resorts with Pitons views, waterfalls and mud baths; one of the Caribbean's most romantic settings.", "scenic": "Twin Pitons rising from the sea, rainforest and volcanic landscape; the most dramatic scenery on the list.", "sandy": "Beaches near Soufri\u00e8re are small coves with grey or dark sand; Sugar Beach and Anse Chastanet are the main exceptions.", "dining": "Excellent resort dining with Pitons views and Creole cooking; fewer stand-alone restaurants near Soufri\u00e8re.", "scuba": "Soufri\u00e8re Marine Management Area: Anse Chastanet reef from the beach, Superman's Flight drift and walls under the Pitons.", "variety": "Hikes, diving, Sulphur Springs, botanical gardens, waterfalls, and day trips to Rodney Bay.", "travel": "Verified United nonstop, about 5 hrs 45 min, then about a 1-hr winding drive.", "driving": "Left-side driving on steep, winding, potholed roads; most visitors hire drivers instead.", "kids": "Gros Piton climb, ziplining, waterfalls; Rodney Bay and the Gros Islet Friday street party are about 1.5 hrs away.", "cruise": "Castries is a major cruise port and Soufri\u00e8re gets excursion crowds, but late May is low cruise season.", "weather": "Dry season wraps up in May; warm and humid, with wetter weather from June. Weather Spark, end of May (Soufri\u00e8re, St. Lucia): wind 16.6 mph. Rain chance rises from 25% to 31% over May; mountain terrain makes showers more frequent but brief. Breezy.", "hiking": "Excellent \u2013 Gros Piton (2\u20133 hrs up, guided), Tet Paul Nature Trail, rainforest trails."}, "arrival": "Yes \u2013 verified", "drive": "Moderate", "high": 84, "low": 77, "water": 82, "rain": 31, "clear": 35, "safety": "Level 1 \u2013 Exercise normal precautions (issued 7/10/2026)", "sarg": "Low: Soufri\u00e8re is on the sheltered west coast; the Atlantic east coast takes the sargassum.", "air": 975, "lodging": 1050, "car": 150, "food": 880, "total": 3055, "unit": 600, "transport": 600, "foodday": 110, "headroom": 945, "costrisk": "Medium", "summary": "United nonstop ORD\u2013UVF 8:46a\u20133:31p; return nonstop lands ORD 6:15p (~$975\u20131,055). About 1 hr winding drive to Soufri\u00e8re."}, {"rank": 3, "name": "Bequia / St. Vincent Grenadines", "score": 8.02, "value": 3.11, "scores": {"rom": 10, "scenic": 10, "sandy": 9, "dining": 7, "scuba": 8, "variety": 6, "travel": 4, "driving": 8, "kids": 4, "cruise": 9, "weather": 7, "hiking": 6}, "details": {"rom": "Tiny, unhurried island with a sailboat-filled harbor and candlelit waterfront dinners; very few crowds.", "scenic": "Grenadines island-chain views and a day trip to the Tobago Cays, some of the clearest turquoise water in the Caribbean.", "sandy": "Princess Margaret and Lower Bay are soft golden sand, walkable from Port Elizabeth; beaches are smaller than Grace Bay.", "dining": "Charming waterfront restaurants and fresh seafood, but a short list of options.", "scuba": "Healthy walls and reefs around Bequia (Devil's Table, The Wall) with small, personal dive shops; Tobago Cays turtles by day boat.", "variety": "Beach, boat and dive by design; little shopping or touring.", "travel": "Verified flight via Miami (about 8 hrs), plus a taxi and a 1-hr ferry; the longest trip on the list.", "driving": "No car needed: tiny island with taxis and water taxis (they drive on the left).", "kids": "Very quiet; a few beach bars and sailing.", "cruise": "Only occasional small cruise ships.", "weather": "End of the dry season; showers become more frequent heading into June. Weather Spark, end of May (Port Elizabeth, Bequia): wind 16.7 mph. Low rain chance for late May; steady trade winds. Warmest nights on the list.", "hiking": "Moderate \u2013 Mt. Pleasant and Peggy's Rock hikes, Princess Margaret coastal trail; La Soufri\u00e8re volcano on St. Vincent as a day trip."}, "arrival": "Likely", "drive": "Moderate", "high": 86, "low": 80, "water": 82, "rain": 18, "clear": 34, "safety": "Level 1 \u2013 Exercise normal precautions (issued 7/7/2026)", "sarg": "Medium: the Grenadines see periodic sargassum; Lower Bay and Princess Margaret face west and are usually spared.", "air": 945, "lodging": 787.5, "car": 125, "food": 720, "total": 2577.5, "unit": 450, "transport": 500, "foodday": 90, "headroom": 1422.5, "costrisk": "High", "summary": "American via Miami lands St. Vincent (SVD) 2:56p; return 3:09p, lands ORD 11:30p (~$945). The 1-hr Kingstown\u2013Bequia ferry schedule still needs confirming."}, {"rank": 4, "name": "Exuma, Bahamas", "score": 7.89, "value": 2.56, "scores": {"rom": 9, "scenic": 9, "sandy": 10, "dining": 7, "scuba": 8, "variety": 6, "travel": 6, "driving": 7, "kids": 5, "cruise": 9, "weather": 7, "hiking": 2}, "details": {"rom": "Private-feeling cays, empty sandbars and boat days; lodging is low-key rather than luxurious.", "scenic": "Famous electric-blue shallows and sandbars, best seen from a boat; the island itself is flat.", "sandy": "Powder-white sand nearly everywhere: Tropic of Cancer Beach, Coco Plum, and the sandbars.", "dining": "Casual seafood shacks and a few good resort restaurants; limited choice.", "scuba": "Thunderball Grotto, Exuma Cays Land & Sea Park reefs and current-fed drift dives; fewer dive operators than the bigger islands.", "variety": "Swimming-pig boat tour, sandbars and snorkeling; minimal town life.", "travel": "Verified one connection via Miami, about 5.5 hrs; arrives late morning.", "driving": "Left-side driving on one flat main road (Queen's Highway); easy otherwise.", "kids": "Boat adventures and beach bars; little nightlife.", "cruise": "No large cruise port at George Town.", "weather": "Warm; afternoon showers start picking up late May\u2013June. Weather Spark, end of May (George Town, Exuma): wind 12.1 mph. Rain chance climbs through May (start of Bahamas wet season). Water warms from 79\u00b0F to 81\u00b0F over the month.", "hiking": "Minimal \u2013 flat; short trails on Stocking Island to the Atlantic side."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 86, "low": 77, "water": 81, "rain": 29, "clear": 35, "safety": "Level 2 \u2013 Exercise increased caution (issued 7/28/2026); crime is concentrated in Nassau and Freeport, lower in the Out Islands", "sarg": "Medium: the Atlantic-facing east side can get sargassum; the sound side and sandbars less so.", "air": 840, "lodging": 1137.5, "car": 150, "food": 960, "total": 3087.5, "unit": 650, "transport": 600, "foodday": 120, "headroom": 912.5, "costrisk": "Medium-High", "summary": "American via Miami 5:00a\u201311:21a (or 7:00a\u20131:20p); return 2:35p, lands ORD 10:00p (~$840). Cheaper fares overnight in Miami, so book the early flight."}, {"rank": 5, "name": "St. John, USVI", "score": 7.85, "value": 2.56, "scores": {"rom": 9, "scenic": 9, "sandy": 9, "dining": 7, "scuba": 7, "variety": 7, "travel": 7, "driving": 4, "kids": 6, "cruise": 6, "weather": 8, "hiking": 9}, "details": {"rom": "Quiet island, two-thirds national park, villa-based stays; romantic but casual.", "scenic": "Green hills dropping into bays, with overlooks above Trunk and Cinnamon Bays; very scenic for its size.", "sandy": "Trunk, Cinnamon, Maho and Honeymoon Bay: white sand and calm water; parking fills up at popular beaches.", "dining": "Good small-town dining in Cruz Bay and Coral Bay; limited choice and pricey.", "scuba": "Good boat dives and some of the best snorkeling in the Caribbean inside the national park; fewer standout dive sites.", "variety": "Hiking, beaches, snorkeling, and day trips to St. Thomas.", "travel": "Verified flight to STT (about 7 hrs), plus a taxi and a 20-min ferry.", "driving": "Left-side driving on steep switchback roads; a Jeep is recommended.", "kids": "Cruz Bay bars, hiking and boat days.", "cruise": "St. Thomas cruise passengers day-trip to Trunk Bay; quieter beaches elsewhere.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Cruz Bay, St. John): wind 13.8 mph. Cloudiness increases through May (54% clear-ish on May 1 \u2192 28% on May 31).", "hiking": "Excellent \u2013 60% national park: Ram Head, Reef Bay (petroglyphs), Lind Point."}, "arrival": "Likely", "drive": "Low-Moderate", "high": 86, "low": 79, "water": 82, "rain": 25, "clear": 28, "safety": "US territory \u2013 no State Dept advisory; normal precautions", "sarg": "Low: north-shore beaches (Trunk, Cinnamon, Maho) are usually clear; the Coral Bay side can catch some.", "air": 660, "lodging": 1225, "car": 225, "food": 960, "total": 3070, "unit": 700, "transport": 900, "foodday": 120, "headroom": 930, "costrisk": "High", "summary": "American via Charlotte lands STT 2:49p (~$660); United nonstop also available (~$1,035). Then a taxi and the 20-min Red Hook ferry. No passport needed."}, {"rank": 6, "name": "Virgin Gorda, BVI", "score": 7.82, "value": 2.36, "scores": {"rom": 10, "scenic": 9, "sandy": 10, "dining": 7, "scuba": 8, "variety": 7, "travel": 3, "driving": 6, "kids": 5, "cruise": 8, "weather": 8, "hiking": 4}, "details": {"rom": "Secluded coves, small boutique resorts and sunset sails; one of the quietest, most intimate islands in the Caribbean.", "scenic": "Giant granite boulders at The Baths and views over North Sound; hills are low, so a notch below the Pitons.", "sandy": "Savannah Bay, Spring Bay, Devil's Bay and The Baths: soft white sand, calm water, short drives from most lodging.", "dining": "Good resort and beach-bar dining around North Sound and Spanish Town, but a small island with limited range.", "scuba": "RMS Rhone wreck, The Chimney and The Dogs are a short boat ride; a sheltered, beginner-friendly dive area.", "variety": "Beaches, boat days to Anegada or Jost Van Dyke, snorkeling; little shopping or town sightseeing.", "travel": "Verified flight to STT, then a ferry; or about $2,200 to fly all the way via San Juan. The hardest island to reach.", "driving": "Left-side driving on steep but short roads; many visitors use taxis and skip the car.", "kids": "Beach bars (Saba Rock) and boat days to Jost Van Dyke's Soggy Dollar; quiet at night.", "cruise": "No large cruise port; mostly yachts and small ships.", "weather": "Late May is typically dry and warm; the wetter months are Aug\u2013Nov. Weather Spark, end of May (Road Town, Tortola (proxy, ~12 mi)): wind 13.9 mph. No Virgin Gorda page; Road Town is the nearest station and Virgin Gorda is drier and flatter, so rain is likely slightly lower.", "hiking": "Light \u2013 Gorda Peak trail (~1 hr) and The Baths-to-Devil's Bay boulder trail."}, "arrival": "Tight", "drive": "Moderate", "high": 86, "low": 78, "water": 82, "rain": 22, "clear": 28, "safety": "Level 1 \u2013 Exercise normal precautions (issued 5/22/2026)", "sarg": "Low: Savannah Bay and The Baths face north/west, sheltered from the main Atlantic inflow; east-facing bays can catch some.", "air": 760, "lodging": 1312.5, "car": 200, "food": 1040, "total": 3312.5, "unit": 750, "transport": 800, "foodday": 130, "headroom": 687.5, "costrisk": "High", "summary": "Cheapest route: American via Charlotte lands STT 2:49p (~$660), then a ferry to Spanish Town (schedule not verified). A guaranteed same-day route by air via San Juan to VIJ lands 5:08p but costs about $2,200 pp."}, {"rank": 7, "name": "St. Kitts & Nevis", "score": 7.79, "value": 2.97, "scores": {"rom": 9, "scenic": 9, "sandy": 8, "dining": 8, "scuba": 6, "variety": 8, "travel": 6, "driving": 6, "kids": 7, "cruise": 6, "weather": 8, "hiking": 9}, "details": {"rom": "Plantation-inn stays and a quiet sister island (Nevis) a short ferry ride away.", "scenic": "Volcanic peaks (Mt. Liamuiga, Nevis Peak), rainforest, and a narrow peninsula with sea on both sides.", "sandy": "South Frigate Bay, Cockleshell Bay and Pinney's Beach are good sand; fewer standout beaches than Antigua.", "dining": "Good range, from the South Frigate Bay strip to plantation-house dinners on Nevis.", "scuba": "River Taw wreck and Sandy Point reefs are pleasant; diving is not a highlight.", "variety": "Brimstone Hill fortress (UNESCO), scenic railway, Nevis day trip, beaches.", "travel": "Verified one connection, about 7 hrs.", "driving": "Left-side driving on one main ring road; easy to moderate.", "kids": "Frigate Bay 'Strip' beach bars, ziplining, volcano hike, catamaran trips.", "cruise": "Port Zante is a large cruise port; Nevis is much quieter.", "weather": "Generally dry and pleasant in late May. Weather Spark, end of May (Basseterre, St. Kitts): wind 14.8 mph. Rain chance flat and fairly low through May.", "hiking": "Excellent \u2013 Mt. Liamuiga crater (5\u20136 hrs, guided), rainforest trails, Nevis Peak (strenuous)."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 86, "low": 78, "water": 82, "rain": 19, "clear": 32, "safety": "Level 1 \u2013 Exercise normal precautions (issued 7/7/2026)", "sarg": "Medium: the Atlantic side is affected; South Frigate Bay, Cockleshell and Nevis's Pinney's Beach are usually lighter.", "air": 800, "lodging": 875, "car": 150, "food": 800, "total": 2625, "unit": 500, "transport": 600, "foodday": 100, "headroom": 1375, "costrisk": "Medium", "summary": "American via Charlotte 5:10a\u20131:07p, or Delta via Atlanta lands 2:00p; return 2:36p, lands ORD 9:32p (~$780\u2013800)."}, {"rank": 8, "name": "Antigua", "score": 7.74, "value": 3.16, "scores": {"rom": 9, "scenic": 8, "sandy": 10, "dining": 7, "scuba": 6, "variety": 8, "travel": 6, "driving": 5, "kids": 7, "cruise": 6, "weather": 9, "hiking": 6}, "details": {"rom": "Many secluded beach coves and a sailing-harbor atmosphere at English Harbour.", "scenic": "Rolling green hills and scalloped bays; Shirley Heights lookout is the highlight, less dramatic than volcanic islands.", "sandy": "Known for its '365 beaches' of white sand: Half Moon Bay, Darkwood, Ffryes, Valley Church.", "dining": "Solid but not standout; best around English Harbour and Jolly Harbour.", "scuba": "Cades Reef and Sunken Rock are decent dives, but diving isn't a headline draw here.", "variety": "Nelson's Dockyard (UNESCO), Shirley Heights sunset party, boat trips, many beaches.", "travel": "Verified one connection via Miami or Charlotte, about 7\u20138 hrs.", "driving": "Left-side driving on narrow, potholed roads; moderate difficulty.", "kids": "Shirley Heights Sunday party, English Harbour bars, boat days.", "cruise": "St. John's is a busy cruise port; resort beaches are usually fine.", "weather": "One of the driest islands in the Caribbean. Weather Spark, end of May (Saint John's, Antigua): wind 15.1 mph. Rain chance flat through May; one of the drier Leewards.", "hiking": "Moderate \u2013 Shirley Heights lookout trail, Pillars of Hercules, Mt. Obama."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 85, "low": 78, "water": 81, "rain": 23, "clear": 34, "safety": "Level 1 \u2013 Exercise normal precautions (issued 5/20/2026)", "sarg": "Medium: the Atlantic east coast (Half Moon Bay, Long Bay) gets hit in heavy years; west-coast beaches (Darkwood, Ffryes, Valley Church) are usually clear. Book on the west coast.", "air": 710, "lodging": 787.5, "car": 150, "food": 800, "total": 2447.5, "unit": 450, "transport": 600, "foodday": 100, "headroom": 1552.5, "costrisk": "Medium", "summary": "American via Miami 5:00a\u20131:52p; return 1:21p, lands ORD 10:00p (~$710). East-coast beaches can get sargassum."}, {"rank": 9, "name": "St. Croix, USVI", "score": 7.7, "value": 3.03, "scores": {"rom": 8, "scenic": 8, "sandy": 8, "dining": 8, "scuba": 9, "variety": 8, "travel": 7, "driving": 6, "kids": 6, "cruise": 8, "weather": 8, "hiking": 6}, "details": {"rom": "Quiet and uncrowded, with a romantic Christiansted waterfront and small inns; less polished than St. John.", "scenic": "Rolling green hills, a rainforest on the west end and Point Udall sunrise views; less dramatic than St. John.", "sandy": "Good sand at Shoy's, Isaac Bay, Sandy Point and Buck Island; Cane Bay is rockier.", "dining": "Strong small-town dining in Christiansted and Frederiksted.", "scuba": "Cane Bay wall straight off the beach, the Frederiksted Pier dive (seahorses, night dives) and the Buck Island underwater trail.", "variety": "Buck Island boat trip, Christiansted's Danish colonial history, rum distilleries, rainforest.", "travel": "Verified one connection, about 7 hrs 20 min; 15\u201320 min to most hotels.", "driving": "Left-side driving, but flatter and wider roads than St. Thomas or St. John.", "kids": "Christiansted boardwalk bars and Frederiksted's Sunday beach scene; moderate nightlife.", "cruise": "Occasional cruise calls at Frederiksted; usually quiet.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Saint Croix, USVI): wind 14.0 mph. Rain chance flat through May.", "hiking": "Moderate \u2013 Annaly Bay tide pools, Point Udall, Goat Hill."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 86, "low": 77, "water": 82, "rain": 23, "clear": 28, "safety": "US territory \u2013 no State Dept advisory; normal precautions, some crime in towns at night", "sarg": "Low-Medium: the east end and south shore can catch some; the north shore and Buck Island are usually clear.", "air": 635, "lodging": 875, "car": 150, "food": 880, "total": 2540, "unit": 500, "transport": 600, "foodday": 110, "headroom": 1460, "costrisk": "Medium", "summary": "United via Newark 5:00a\u20131:20p (or Delta via Atlanta, lands 2:00p); return 2:25p, lands ORD 11:42p (~$635). No passport needed."}, {"rank": 10, "name": "Aruba", "score": 7.65, "value": 2.91, "scores": {"rom": 7, "scenic": 6, "sandy": 10, "dining": 9, "scuba": 6, "variety": 8, "travel": 7, "driving": 10, "kids": 8, "cruise": 6, "weather": 10, "hiking": 6}, "details": {"rom": "Resort-heavy and lively; romantic sunsets but less secluded.", "scenic": "Flat desert landscape with cacti; Arikok National Park is the highlight.", "sandy": "Eagle Beach and Palm Beach: wide, soft white sand on calm water.", "dining": "Large, varied restaurant scene.", "scuba": "The Antilla wreck is one of the region's best wreck dives; reef diving is otherwise average.", "variety": "Arikok, Natural Pool, shopping, casinos.", "travel": "Verified one connection, about 7 hrs; 10\u201315 min to hotels.", "driving": "Right-side driving on flat, well-maintained roads.", "kids": "Palm Beach nightlife, casinos, kitesurfing, ATV tours.", "cruise": "Oranjestad gets cruise ships; Eagle Beach is usually unaffected.", "weather": "Dry, breezy and south of the hurricane belt. Weather Spark, end of May (Oranjestad, Aruba): wind 20.5 mph. Driest on the list (4%) but windiest (20+ mph) \u2014 great for keeping cool, can make boat dives choppy. Weather Spark gives no May 31 cloud value; 21% is implied by its 'about 79% overcast/mostly cloudy all month'. Its 'cloudy' here is mostly fair-weather trade-wind cloud, not rain.", "hiking": "Moderate \u2013 Arikok National Park (Natural Pool, Jamanota); hot by midday."}, "arrival": "Yes \u2013 verified", "drive": "Low", "high": 89, "low": 80, "water": 81, "rain": 4, "clear": 21, "safety": "Level 1 \u2013 Exercise normal precautions (issued 8/20/2026)", "sarg": "Low: south of the main sargassum belt; west-coast beaches are rarely affected.", "air": 747, "lodging": 875, "car": 125, "food": 880, "total": 2627, "unit": 500, "transport": 500, "foodday": 110, "headroom": 1373, "costrisk": "Low", "summary": "American via Charlotte or Miami lands 1:15\u20133:09p; return 2:33p, lands ORD 11:30p (~$747). Outside the hurricane belt."}, {"rank": 11, "name": "St. Martin / Sint Maarten", "score": 7.5, "value": 2.88, "scores": {"rom": 8, "scenic": 7, "sandy": 9, "dining": 10, "scuba": 6, "variety": 9, "travel": 6, "driving": 7, "kids": 9, "cruise": 3, "weather": 8, "hiking": 6}, "details": {"rom": "Romantic French side (Grand Case, Orient Bay), but the Dutch side is a busy cruise port.", "scenic": "Green hills and bays; pleasant rather than dramatic.", "sandy": "Orient Bay, Mullet Bay and Baie Rouge are very good sand.", "dining": "Grand Case is often called the culinary capital of the Caribbean.", "scuba": "HMS Proselyte wreck and Man of War Shoal marine park; decent but not a destination for divers.", "variety": "Two countries, shopping, day trips to St. Barts.", "travel": "Verified one connection, about 7 hrs.", "driving": "Right-side driving, but heavy traffic around Simpson Bay and Philipsburg.", "kids": "Lively: Maho Beach, Orient Bay beach clubs, casinos, varied nightlife.", "cruise": "One of the busiest cruise ports in the Caribbean.", "weather": "Generally dry in late May. Weather Spark, end of May (Philipsburg, Sint Maarten): wind 14.5 mph. Lowest rain chance outside the ABC islands.", "hiking": "Moderate \u2013 Pic Paradis, Loterie Farm, Tintamarre trail on the French side."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 86, "low": 78, "water": 82, "rain": 16, "clear": 31, "safety": "Level 1 \u2013 Exercise normal precautions (Sint Maarten 8/24/2026; French Saint Martin 8/14/2026)", "sarg": "Medium: Orient Bay (east) is frequently hit; Mullet Bay and Baie Rouge on the west side are usually clear. Book on the west side.", "air": 703, "lodging": 875, "car": 150, "food": 880, "total": 2608, "unit": 500, "transport": 600, "foodday": 110, "headroom": 1392, "costrisk": "Medium", "summary": "American via Miami 5:00a\u20131:16p (United via Newark lands 2:43p); return 12:15p, lands ORD 9:32p (~$703)."}, {"rank": 12, "name": "Bayahibe / La Romana, Dominican Republic", "score": 7.49, "value": 3.65, "scores": {"rom": 8, "scenic": 8, "sandy": 9, "dining": 7, "scuba": 7, "variety": 8, "travel": 8, "driving": 4, "kids": 7, "cruise": 6, "weather": 6, "hiking": 6}, "details": {"rom": "Casa de Campo and quiet Bayahibe beach resorts on calm Caribbean water.", "scenic": "Palm-lined white beaches on Saona and Catalina islands; the mainland itself is flat.", "sandy": "Bayahibe, Dominicus and Saona Island: soft white sand and calm water.", "dining": "Good dining at Casa de Campo and Altos de Chav\u00f3n; limited elsewhere.", "scuba": "Catalina Island wall, the St. George wreck and the Guadalupe underwater museum; the best diving in the DR.", "variety": "Saona Island boat day, the Altos de Chav\u00f3n artists' village, caves, golf.", "travel": "Verified nonstop, about 4 hrs 40 min, then about a 1-hr transfer.", "driving": "Right-side driving, but Dominican roads and driving are chaotic; use transfers.", "kids": "Catamaran party trips to Saona, beach bars, Casa de Campo marina.", "cruise": "La Romana and Catalina Island are cruise stops, and Saona gets day-trip crowds.", "weather": "May is the start of the rainy season; hot. Weather Spark, end of May (La Romana, DR (~12 mi from Bayahibe)): wind 10.4 mph. Hot days, coolest nights, lightest wind on the list. Rain chance flat at 18%.", "hiking": "Moderate \u2013 Padre Nuestro and Cueva del Puente cave trails in Cotubanam\u00e1 National Park."}, "arrival": "Yes \u2013 verified", "drive": "Moderate", "high": 88, "low": 74, "water": 82, "rain": 18, "clear": 26, "safety": "Level 2 \u2013 Exercise increased caution (issued 6/12/2025)", "sarg": "Medium: the south coast is less exposed than Punta Cana but has had arrivals in heavy years; check the 2027 outlook.", "air": 507, "lodging": 700, "car": 125, "food": 720, "total": 2052, "unit": 400, "transport": 500, "foodday": 90, "headroom": 1948, "costrisk": "Medium", "summary": "Nonstops both ways: American 8:30a\u20132:11p into Punta Cana, Arajet back 7:02a\u201311:12a (~$507, the cheapest on the list). About a 1-hr transfer to Bayahibe, so the return morning starts before dawn."}, {"rank": 13, "name": "Negril, Jamaica", "score": 7.48, "value": 2.92, "scores": {"rom": 8, "scenic": 7, "sandy": 10, "dining": 7, "scuba": 6, "variety": 8, "travel": 7, "driving": 4, "kids": 9, "cruise": 9, "weather": 6, "hiking": 4}, "details": {"rom": "Cliff-top sunset dinners on the West End and relaxed beach resorts; parts of Seven Mile Beach are lively.", "scenic": "Dramatic West End limestone cliffs, but Seven Mile Beach itself is flat. Western Jamaica was hit hard by Hurricane Melissa (Oct 2025) and some areas are still recovering.", "sandy": "Seven Mile Beach: long, soft, calm white sand in front of most hotels.", "dining": "Good casual dining, jerk and seafood; few fine-dining spots.", "scuba": "West End reef and cave dives are fine, but reefs are overfished and less vibrant than the top sites.", "variety": "Rick's Caf\u00e9 cliffs, Black River safari, YS Falls, river rafting.", "travel": "Verified United nonstop (4 hrs 10 min), then about a 1.5-hr drive.", "driving": "Left-side driving and demanding road conditions; most visitors use transfers.", "kids": "Rick's Caf\u00e9 cliff jumping, beach bars, live reggae, rafting.", "cruise": "No cruise port nearby.", "weather": "May is one of Jamaica's wetter months (first rainy period May\u2013June). Weather Spark, end of May (Negril, Jamaica): wind 11.8 mph. Wettest on the list: rainy season is under way by late May (44% chance of a wet day), usually afternoon storms. Warmest water.", "hiking": "Light \u2013 cliff walks; YS Falls and Mayfield Falls river walks as day trips."}, "arrival": "Yes \u2013 verified", "drive": "Moderate", "high": 86, "low": 77, "water": 83, "rain": 44, "clear": 25, "safety": "Level 2 \u2013 Exercise increased caution (issued 6/23/2026)", "sarg": "Low-Medium: west-facing Seven Mile Beach is usually spared; Jamaica's south and east coasts take most of it.", "air": 930, "lodging": 787.5, "car": 125, "food": 720, "total": 2562.5, "unit": 450, "transport": 500, "foodday": 90, "headroom": 1437.5, "costrisk": "Medium", "summary": "United nonstop ORD\u2013MBJ 8:40a\u201312:50p; return nonstop 1:52p lands ORD 6:15p (~$930). About 1.5-hr drive to Negril. Confirm your resort has reopened after Hurricane Melissa."}, {"rank": 14, "name": "Abaco, Bahamas", "score": 7.47, "value": 2.38, "scores": {"rom": 8, "scenic": 8, "sandy": 9, "dining": 7, "scuba": 7, "variety": 7, "travel": 7, "driving": 6, "kids": 6, "cruise": 9, "weather": 7, "hiking": 2}, "details": {"rom": "Loyalist-era cay villages (Hope Town, Man-O-War) and quiet beaches; low-key and charming.", "scenic": "Turquoise Sea of Abaco channels dotted with cays and the candy-striped Hope Town lighthouse.", "sandy": "Treasure Cay Beach is among the best in the Bahamas; more cay beaches by boat.", "dining": "Casual waterfront restaurants on the cays; limited fine dining.", "scuba": "Fowl Cay reef preserve, wrecks and blue holes; dive operations are still rebuilding after Hurricane Dorian (2019).", "variety": "Cay-hopping by rental boat, Hope Town, Nippers on Guana Cay; some areas still rebuilding since Hurricane Dorian (2019).", "travel": "Verified one connection, about 5 hrs; arrives around 1p.", "driving": "Left-side driving on flat roads; boats and golf carts on the cays.", "kids": "Nippers Sunday pig roast and beach bars, boating; little nightlife.", "cruise": "No cruise port.", "weather": "Warm; afternoon showers increase late May\u2013June. Weather Spark, end of May (Marsh Harbour, Abaco): wind 11.0 mph. Sunniest skies on the list but rain chance doubles over May (15% \u2192 31%). Coolest water (80\u00b0F) \u2014 3mm wetsuit comfortable for divers.", "hiking": "Minimal \u2013 flat; nature walks in Abaco National Park."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 84, "low": 76, "water": 80, "rain": 31, "clear": 42, "safety": "Level 2 \u2013 Exercise increased caution (issued 7/28/2026)", "sarg": "Medium: Atlantic-facing cay beaches can get sargassum; Treasure Cay and the Sea of Abaco side are more sheltered.", "air": 871, "lodging": 1137.5, "car": 175, "food": 960, "total": 3143.5, "unit": 650, "transport": 700, "foodday": 120, "headroom": 856.5, "costrisk": "Medium-High", "summary": "American via Charlotte 6:55a\u201312:59p; return 12:01p, lands ORD 9:32p (~$871). Plan on rental boats for the cays."}, {"rank": 15, "name": "Tortola / Jost Van Dyke, BVI", "score": 7.45, "value": 2.34, "scores": {"rom": 8, "scenic": 9, "sandy": 8, "dining": 7, "scuba": 9, "variety": 8, "travel": 5, "driving": 3, "kids": 8, "cruise": 6, "weather": 8, "hiking": 6}, "details": {"rom": "Villa stays and beach bars; more lived-in than Virgin Gorda.", "scenic": "Mountainous green island with sweeping views of the BVI chain.", "sandy": "Cane Garden Bay and Smuggler's Cove; White Bay on Jost Van Dyke is the standout.", "dining": "Casual waterfront dining and beach bars; few fine-dining options.", "scuba": "RMS Rhone, The Indians, Wreck Alley and dozens of BVI sites within short boat rides.", "variety": "Island-hopping boat days are the main event.", "travel": "Verified via San Juan, about 8 hrs 40 min; or STT plus a 45\u201360 min ferry.", "driving": "Left-side driving on some of the steepest roads in the Caribbean.", "kids": "Island-hopping boat days and famous beach bars (Soggy Dollar, Foxy's, Willy T).", "cruise": "Road Town gets cruise ships, and Jost Van Dyke is busy on day-trip days.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Road Town, Tortola): wind 13.9 mph. Same station as Virgin Gorda.", "hiking": "Moderate \u2013 Sage Mountain National Park; Bubbly Pool walk on Jost Van Dyke."}, "arrival": "Yes \u2013 verified", "drive": "Moderate", "high": 86, "low": 78, "water": 82, "rain": 22, "clear": 28, "safety": "Level 1 \u2013 Exercise normal precautions (issued 5/22/2026)", "sarg": "Low: north-shore beaches face away from the main inflow.", "air": 1168, "lodging": 962.5, "car": 175, "food": 880, "total": 3185.5, "unit": 550, "transport": 700, "foodday": 110, "headroom": 814.5, "costrisk": "Medium-High", "summary": "United + Cape Air via San Juan lands Beef Island 6:30p; return 7:15a, lands ORD 9:47p (~$1,168). Cheaper option: fly to STT (~$660) and take the ferry (schedule not verified)."}, {"rank": 16, "name": "Barbados", "score": 7.39, "value": 2.82, "scores": {"rom": 8, "scenic": 7, "sandy": 9, "dining": 9, "scuba": 7, "variety": 8, "travel": 6, "driving": 5, "kids": 8, "cruise": 6, "weather": 8, "hiking": 4}, "details": {"rom": "Upscale west-coast resorts and sunset dinners; busier and more developed.", "scenic": "Gentle, rolling landscape; the rugged east coast at Bathsheba is the scenic highlight.", "sandy": "Calm white-sand west and south coasts (Mullins, Carlisle Bay, Crane Beach).", "dining": "One of the strongest restaurant scenes in the Caribbean, plus the Oistins fish fry.", "scuba": "Carlisle Bay wrecks with turtles and the Stavronikita wreck; easy dives for mixed certification levels.", "variety": "Harrison's Cave, rum distilleries, plantation houses.", "travel": "Verified one connection, about 7 hrs 45 min.", "driving": "Left-side driving with narrow lanes, many roundabouts and patchy signage.", "kids": "St. Lawrence Gap nightlife, Oistins Friday fish fry, catamaran trips.", "cruise": "Bridgetown is a busy cruise port.", "weather": "End of the dry season; usually still pleasant in late May. Weather Spark, end of May (Bridgetown, Barbados): wind 17.0 mph. Rain chance rising quickly late in May but still low; breezy.", "hiking": "Light \u2013 east-coast walks, Hackleton's Cliff; National Trust Sunday hikes."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 86, "low": 79, "water": 82, "rain": 17, "clear": 37, "safety": "Level 1 \u2013 Exercise normal precautions (issued 4/10/2026)", "sarg": "Medium: the east and south coasts are often hit; the calm west coast (Mullins, Holetown) is usually lighter. Book on the west coast.", "air": 799, "lodging": 875, "car": 150, "food": 800, "total": 2624, "unit": 500, "transport": 600, "foodday": 100, "headroom": 1376, "costrisk": "Medium", "summary": "American via Charlotte 5:10a\u20131:56p; return 8:00a, lands ORD 5:09p (~$799)."}, {"rank": 17, "name": "Cura\u00e7ao", "score": 7.37, "value": 3.18, "scores": {"rom": 8, "scenic": 7, "sandy": 6, "dining": 8, "scuba": 9, "variety": 8, "travel": 6, "driving": 9, "kids": 7, "cruise": 6, "weather": 10, "hiking": 7}, "details": {"rom": "Colorful Willemstad and small cove beaches; pleasant rather than intimate.", "scenic": "Arid, rugged west coast and the UNESCO-listed Willemstad waterfront.", "sandy": "Small coves, often with coral or pebbles; Grote Knip and Cas Abao are nice but small.", "dining": "Good, varied dining in Willemstad.", "scuba": "Excellent, easy shore diving along the west coast (Tugboat, Mushroom Forest); good for a group with mixed certification.", "variety": "Willemstad, Christoffel Park, boat trips.", "travel": "Verified one connection, about 7.5 hrs.", "driving": "Right-side driving on good roads.", "kids": "Willemstad bars, beach clubs, live music.", "cruise": "Willemstad is a regular cruise port.", "weather": "Dry, breezy and south of the hurricane belt. Weather Spark, end of May (Willemstad, Cura\u00e7ao): wind 19.5 mph. Arid and very dry; strong trade winds keep it comfortable. Wind can make east-side water rough; west-side dive sites stay calm.", "hiking": "Good \u2013 Christoffel Park (Mt. Christoffel, ~1\u20131.5 hrs; start early) and Shete Boka."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 88, "low": 80, "water": 81, "rain": 4, "clear": 25, "safety": "Level 1 \u2013 Exercise normal precautions (issued 9/9/2026)", "sarg": "Low: south of the main sargassum belt; rarely affected.", "air": 809, "lodging": 700, "car": 125, "food": 680, "total": 2314, "unit": 400, "transport": 500, "foodday": 85, "headroom": 1686, "costrisk": "Low", "summary": "American via Miami 5:00a\u20131:41p (~$809); United's return via Newark lands ORD 11:42p. Avoid Copa, whose routings overnight in Panama."}, {"rank": 17, "name": "St. Thomas, USVI", "score": 7.37, "value": 2.61, "scores": {"rom": 7, "scenic": 8, "sandy": 9, "dining": 8, "scuba": 7, "variety": 8, "travel": 9, "driving": 4, "kids": 7, "cruise": 3, "weather": 8, "hiking": 4}, "details": {"rom": "Busy cruise port; romantic pockets on the east end.", "scenic": "Hilly island with harbor views over Charlotte Amalie and the BVI.", "sandy": "Magens Bay, Sapphire and Lindqvist: white sand, crowded on cruise days.", "dining": "The most dining choice in the USVI.", "scuba": "Cow and Calf rocks, the Buck Island cargo-ship wreck and many boat dives; well organized but busy.", "variety": "Shopping, ferries to St. John, Coki Point, history.", "travel": "Verified United nonstop (about 6 hrs) or one-stop American (about 7 hrs).", "driving": "Left-side driving on steep, congested roads.", "kids": "Bars, shopping, boat days to St. John and the BVI.", "cruise": "One of the busiest cruise ports in the Caribbean; Magens Bay is crowded on ship days.", "weather": "Late May is typically dry and warm. Weather Spark, end of May (Charlotte Amalie, St. Thomas): wind 13.7 mph. Rain chance rises to 29% by May 31.", "hiking": "Light \u2013 short trails (Magens Bay, Mountain Top)."}, "arrival": "Yes \u2013 verified", "drive": "Low-Moderate", "high": 86, "low": 78, "water": 82, "rain": 29, "clear": 28, "safety": "US territory \u2013 no State Dept advisory; normal precautions, some crime around Charlotte Amalie", "sarg": "Low: Magens Bay faces north and is sheltered.", "air": 660, "lodging": 1050, "car": 150, "food": 960, "total": 2820, "unit": 600, "transport": 600, "foodday": 120, "headroom": 1180, "costrisk": "Medium", "summary": "American via Charlotte 6:55a\u20132:49p (~$660) or United nonstop 10:59a\u20135:00p (~$1,035); return lands ORD by 11:30p. No passport needed."}, {"rank": 19, "name": "Nassau / Paradise Island, Bahamas", "score": 6.68, "value": 2.27, "scores": {"rom": 6, "scenic": 6, "sandy": 9, "dining": 8, "scuba": 7, "variety": 9, "travel": 7, "driving": 6, "kids": 8, "cruise": 2, "weather": 7, "hiking": 2}, "details": {"rom": "Big resorts and a busy cruise port; less intimate.", "scenic": "Flat with pretty water, but an urban feel.", "sandy": "Cabbage Beach and Cable Beach: good white sand.", "dining": "Wide choice of restaurants.", "scuba": "Shark dives, wrecks and the James Bond movie sites; good operators, more crowded.", "variety": "Resort amenities, boat day trips to Exuma, nightlife.", "travel": "Verified one connection, about 7 hrs.", "driving": "Left-side driving and congested roads, but taxis are easy.", "kids": "Resort amenities, casinos, nightlife, water parks.", "cruise": "Among the busiest cruise ports in the world.", "weather": "Warm; afternoon showers start picking up late May\u2013June. Weather Spark, end of May (Nassau, Bahamas): wind 11.1 mph. Rain chance more than doubles over May (12% \u2192 28%) as the Bahamas wet season begins.", "hiking": "Minimal \u2013 flat; Clifton Heritage Park and Primeval Forest walks."}, "arrival": "Yes \u2013 verified", "drive": "Low", "high": 86, "low": 76, "water": 81, "rain": 28, "clear": 40, "safety": "Level 2 \u2013 Exercise increased caution (issued 7/28/2026); crime concentrated in Nassau, mostly outside tourist zones", "sarg": "Low: north-facing Cable and Cabbage Beaches are seldom affected.", "air": 745, "lodging": 1137.5, "car": 100, "food": 960, "total": 2942.5, "unit": 650, "transport": 400, "foodday": 120, "headroom": 1057.5, "costrisk": "Medium", "summary": "JetBlue via Fort Lauderdale 7:00a\u20131:52p; return lands ORD 11:44p, cutting it close (~$745)."}, {"rank": 20, "name": "Bonaire", "score": 6.57, "value": 3.0, "scores": {"rom": 7, "scenic": 6, "sandy": 4, "dining": 7, "scuba": 10, "variety": 6, "travel": 6, "driving": 10, "kids": 4, "cruise": 7, "weather": 10, "hiking": 6}, "details": {"rom": "Quiet and low-key; romantic for divers, otherwise sleepy.", "scenic": "Flat, arid island with flamingo salt flats.", "sandy": "Mostly coral and rocky shoreline; very few soft sandy beaches.", "dining": "Small but decent restaurant scene in Kralendijk.", "scuba": "World-class shore diving throughout a protected marine park; 80+ marked sites reachable by car.", "variety": "Diving, flamingos, Washington-Slagbaai park.", "travel": "Verified one connection, about 8 hrs.", "driving": "Right-side driving; flat and easy, with pickups common for shore diving.", "kids": "Very quiet; geared to divers.", "cruise": "Cruise ships call, but most beaches are dive sites away from the port.", "weather": "Dry, breezy and south of the hurricane belt. Weather Spark, end of May (Kralendijk, Bonaire): wind 19.2 mph. Arid and very dry; windy. Leeward shore diving stays calm despite the wind.", "hiking": "Moderate \u2013 Washington Slagbaai National Park (Brandaris hill); hot."}, "arrival": "Yes \u2013 verified", "drive": "Low", "high": 88, "low": 80, "water": 81, "rain": 4, "clear": 26, "safety": "Level 1 \u2013 Exercise normal precautions (issued 8/20/2026)", "sarg": "Low: south of the main sargassum belt; rarely affected.", "air": 646, "lodging": 700, "car": 125, "food": 720, "total": 2191, "unit": 400, "transport": 500, "foodday": 90, "headroom": 1809, "costrisk": "Low", "summary": "American via Miami 6:08a\u20133:26p; return 2:22p, lands ORD 11:30p (~$646)."}]};
+const R = DATA.rows, CRIT = DATA.criteria, SHEETW = DATA.weights;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+const ord = {
+  sarg: r => /^Low:/.test(r.sarg) ? 1 : /^Low-Medium/.test(r.sarg) ? 2 : /^Medium-High/.test(r.sarg) ? 4 : /^Medium/.test(r.sarg) ? 3 : 5,
+  safety: r => /Level 1|US territory/.test(r.safety) ? 1 : /Level 2/.test(r.safety) ? 2 : 3,
+  arrival: r => /verified/i.test(r.arrival) ? 1 : /Likely/.test(r.arrival) ? 2 : 3,
+  drive: r => ({"Low":1,"Low-Moderate":2,"Moderate":3}[r.drive] || 4),
+  costrisk: r => ({"Low":1,"Medium":2,"Medium-High":3,"High":4}[r.costrisk] || 5)
+};
+const short = {
+  sarg: r => r.sarg.split(":")[0],
+  safety: r => /US territory/.test(r.safety) ? "US territory" : (r.safety.match(/Level \d/)||[""])[0],
+  arrival: r => r.arrival.replace(" \u2013 verified"," (verified)")
+};
+let W = {...SHEETW};
+const r2 = v => Math.round(v*100+1e-6)/100;
+const live = r => { let s=0,t=0; for (const c of CRIT){ s+=W[c.key]*r.scores[c.key]; t+=W[c.key]; } return t ? r2(s/t) : 0; };
+// metric registry: get, fmt, better (high/low), group
+const M = [
+  {k:"score", l:"Weighted score", g:"Overall", get:live, fmt:v=>v.toFixed(2), b:"high"},
+  {k:"value", l:"Value index (score per $1k)", g:"Overall", get:r=>r2(live(r)/(r.total/1000)), fmt:v=>v.toFixed(2), b:"high"},
+  ...CRIT.map(c => ({k:c.key, l:c.label, g:"Ranking criteria", get:r=>r.scores[c.key], fmt:v=>String(v), b:"high", crit:true, why:r=>r.details[c.key]})),
+  {k:"total", l:"Total per person", g:"Cost per person", get:r=>r.total, fmt:money, b:"low"},
+  {k:"headroom", l:"Budget headroom", g:"Cost per person", get:r=>r.headroom, fmt:money, b:"high"},
+  {k:"air", l:"Airfare", g:"Cost per person", get:r=>r.air, fmt:money, b:"low"},
+  {k:"lodging", l:"Lodging", g:"Cost per person", get:r=>r.lodging, fmt:money, b:"low"},
+  {k:"car", l:"Car / taxis", g:"Cost per person", get:r=>r.car, fmt:money, b:"low"},
+  {k:"food", l:"Food", g:"Cost per person", get:r=>r.food, fmt:money, b:"low"},
+  {k:"rain", l:"Rain chance, late May", g:"Late-May weather", get:r=>r.rain, fmt:v=>v+"%", b:"low"},
+  {k:"water", l:"Water temp", g:"Late-May weather", get:r=>r.water, fmt:v=>v+"\u00b0F", b:"high"},
+  {k:"clear", l:"Clear sky", g:"Late-May weather", get:r=>r.clear, fmt:v=>v+"%", b:"high"},
+  {k:"high", l:"Avg high", g:"Late-May weather", get:r=>r.high, fmt:v=>v+"\u00b0F", b:"low", nb:true},
+  {k:"low", l:"Avg low", g:"Late-May weather", get:r=>r.low, fmt:v=>v+"\u00b0F", b:"low", nb:true},
+  {k:"arrival", l:"Arrival before midnight", g:"Logistics & risk", get:ord.arrival, fmt:(v,r)=>short.arrival(r), b:"low", why:r=>r.details.travel},
+  {k:"drive", l:"Drive burden", g:"Logistics & risk", get:ord.drive, fmt:(v,r)=>r.drive, b:"low"},
+  {k:"safety", l:"Safety advisory", g:"Logistics & risk", get:ord.safety, fmt:(v,r)=>short.safety(r), b:"low", why:r=>r.safety},
+  {k:"sarg", l:"Sargassum risk", g:"Logistics & risk", get:ord.sarg, fmt:(v,r)=>short.sarg(r), b:"low", why:r=>r.sarg.split(": ").slice(1).join(": ")},
+  {k:"costrisk", l:"Cost risk", g:"Logistics & risk", get:ord.costrisk, fmt:(v,r)=>r.costrisk, b:"low"},
+];
+const MK = Object.fromEntries(M.map(m=>[m.k,m]));
+const range = {}; // min/max across all 20 for bars
+function calcRanges(){ for (const m of M){ const v=R.map(m.get); range[m.k]=[Math.min(...v),Math.max(...v)]; } }
+const pct = (m,v) => { const [a,b]=range[m.k]; if (b===a) return 100; const p=(v-a)/(b-a); return Math.round(8+92*(m.b==="high"?p:1-p)); };
+
+const sheetRank = Object.fromEntries(R.map(r=>[r.name,r.rank]));
+const st = {sort:"score", dir:1, q:"", max:3500, f:{}, sel:[R[0].name,R[1].name,R[2].name], open:{}, why:false, diff:false};
+const store = { get(){ try{ return JSON.parse(localStorage.getItem("vacay27x-v16")||"null"); }catch(e){ return null; } },
+                set(){ try{ localStorage.setItem("vacay27x-v16", JSON.stringify({sort:st.sort,dir:st.dir,max:st.max,f:st.f,sel:st.sel,why:st.why,diff:st.diff,W})); }catch(e){} } };
+const saved = store.get();
+if (saved){ Object.assign(st, {sort:saved.sort in MK?saved.sort:"score", dir:saved.dir||1, max:saved.max||3500, f:saved.f||{}, sel:(saved.sel||st.sel).filter(n=>sheetRank[n]), why:!!saved.why, diff:!!saved.diff});
+  if (saved.W) for (const k in SHEETW) if (typeof saved.W[k]==="number") W[k]=saved.W[k]; }
+
+function liveRanks(){ const s=[...R].sort((a,b)=>live(b)-live(a)); const out={}; let prev=null, rk=0;
+  s.forEach((r,i)=>{ const v=live(r); if (v!==prev){ rk=i+1; prev=v; } out[r.name]=rk; }); return out; }
+
+function cellBg(s){ const p = Math.round(6 + (s-1)/9*89); return `background:color-mix(in srgb,var(--accent) ${p}%,var(--surface));color:${s>=7?"var(--on-accent)":"var(--ink)"}`; }
+const critByW = () => [...CRIT].sort((a,b)=>W[b.key]-W[a.key]);
+
+function tags(r){
+  const t=[];
+  const a=ord.arrival(r); t.push(`<span class="tag ${a===1?"good":a===2?"warn":"bad"}">${a===1?"Same-day \u2713":a===2?"Same-day likely":"Same-day tight"}</span>`);
+  const s=ord.sarg(r); t.push(`<span class="tag ${s===1?"good":s===2?"":"warn"}">Sargassum ${esc(short.sarg(r).toLowerCase())}</span>`);
+  t.push(`<span class="tag ${ord.safety(r)===1?"good":""}">${esc(short.safety(r))}</span>`);
+  t.push(`<span class="tag ${r.rain<=10?"good":r.rain>=30?"warn":""}">${r.rain}% rain</span>`);
+  t.push(`<span class="tag">${money(r.total)} pp</span>`);
+  return t.join("");
+}
+
+function renderList(){
+  const m = MK[st.sort], ranks = liveRanks(), q = st.q.trim().toLowerCase();
+  let rows = R.filter(r => r.total <= st.max && (!st.f.sarg || ord.sarg(r)===1)
+    && (!st.f.lvl1 || ord.safety(r)===1) && (!st.f.dry || r.rain<=20)
+    && (!st.f.dive || r.scores.scuba>=8) && (!st.f.hike || r.scores.hiking>=7) && (!st.f.kids || r.scores.kids>=7)
+    && (!st.f.cruise || r.scores.cruise>=8) && (!st.f.drive || r.drive==="Low")
+    && (!q || (r.name+" "+r.summary+" "+Object.values(r.details).join(" ")).toLowerCase().includes(q)));
+  const sign = (m.b==="high"?-1:1)*st.dir;
+  rows.sort((a,b)=> (m.get(a)-m.get(b))*sign || live(b)-live(a));
+  $("#countH").textContent = rows.length===R.length ? "All 20 destinations" : `${rows.length} of 20 destinations`;
+  $("#sortDir").textContent = st.dir===1 ? "\u2193 Best first" : "\u2191 Worst first";
+  const wsum = Object.values(W).reduce((a,b)=>a+b,0);
+  const changed = CRIT.some(c=>Math.abs(W[c.key]-SHEETW[c.key])>1e-9);
+  $("#whint").textContent = changed ? "Custom weights \u2014 ranks and scores below are recalculated." : "Using the weights from your Travel Constraints tab.";
+  const order = critByW();
+  $("#list").innerHTML = rows.length ? rows.map(r=>{
+    const id = "d"+sheetRank[r.name]+"_"+r.name.replace(/\W+/g,"").slice(0,10);
+    const lr = ranks[r.name], d = sheetRank[r.name]-lr, on = st.sel.includes(r.name), open = !!st.open[r.name];
+    const v = m.get(r);
+    return `<article class="item${on?" sel":""}">
+      <div class="head">
+        <button class="cmp" type="button" data-cmp="${esc(r.name)}" aria-pressed="${on}" aria-label="Compare ${esc(r.name)}">${on?"\u2713":"+"}</button>
+        <div class="rk" title="Rank with current weights">${lr}${changed&&d!==0?`<small class="${d>0?"up":"down"}">${d>0?"\u25b2"+d:"\u25bc"+(-d)}</small>`:`<small>rank</small>`}</div>
+        <div class="nm"><h3>${esc(r.name)}</h3><div class="tags">${tags(r)}</div></div>
+        <div class="strip" aria-label="Criterion scores">${order.map(c=>`<span title="${esc(c.label)}: ${r.scores[c.key]}/10 (weight ${(W[c.key]*100).toFixed(1)}%)" style="${cellBg(r.scores[c.key])}">${r.scores[c.key]}</span>`).join("")}</div>
+        <div class="metric"><div class="v">${esc(m.fmt(v,r))}</div><div class="l">${esc(m.l)}</div><div class="bar"><i style="width:${pct(m,v)}%"></i></div></div>
+        <button class="exp" type="button" data-open="${esc(r.name)}" aria-expanded="${open}" aria-controls="${id}" aria-label="Show details for ${esc(r.name)}">\u2304</button>
+      </div>
+      ${open?detail(r,id):""}
+    </article>`; }).join("") : `<div class="panel empty">No destinations match these filters. Try raising the cost limit or clearing a filter.</div>`;
+}
+
+function detail(r,id){
+  return `<div class="body" id="${id}">
+    <div><h4>Why each score</h4>${critByW().map(c=>`<div class="crit"><div><b>${esc(c.label)}</b><span class="w8">weight ${(W[c.key]*100).toFixed(1)}%</span></div><div class="s" style="${cellBg(r.scores[c.key])}">${r.scores[c.key]}</div><div class="t">${esc(r.details[c.key])}</div></div>`).join("")}</div>
+    <div class="side">
+      <div><h4>Overall fit</h4><p class="note">${esc(r.summary)}</p></div>
+      <div><h4>Cost per person, 7 nights</h4><dl class="kv">
+        <dt>Airfare</dt><dd>${money(r.air)}</dd><dt>Lodging (2BR unit ${money(r.unit)}/night)</dt><dd>${money(r.lodging)}</dd>
+        <dt>Car / taxis</dt><dd>${money(r.car)}</dd><dt>Food (${money(r.foodday)}/day)</dt><dd>${money(r.food)}</dd>
+        <dt><b>Total</b></dt><dd><b>${money(r.total)}</b></dd><dt>Left under $4,000</dt><dd>${money(r.headroom)}</dd><dt>Cost risk</dt><dd>${esc(r.costrisk)}</dd></dl></div>
+      <div><h4>Late-May weather</h4><dl class="kv"><dt>High / low</dt><dd>${r.high}\u00b0 / ${r.low}\u00b0F</dd><dt>Water</dt><dd>${r.water}\u00b0F</dd><dt>Rain chance</dt><dd>${r.rain}%</dd><dt>Clear sky</dt><dd>${r.clear}%</dd></dl></div>
+      <div><h4>Getting there</h4><p class="note"><b>${esc(short.arrival(r))}</b> \u00b7 drive burden ${esc(r.drive)}</p></div>
+      <div><h4>Safety & sargassum</h4><p class="note">${esc(r.safety)}</p><p class="note">${esc(r.sarg)}</p></div>
+    </div></div>`;
+}
+
+function renderCompare(){
+  const sel = st.sel.map(n=>R.find(r=>r.name===n)).filter(Boolean);
+  $("#sels").innerHTML = sel.length ? sel.map(r=>`<span class="pill">${esc(r.name.split(/[,/]/)[0].trim())}<button type="button" data-cmp="${esc(r.name)}" aria-label="Remove ${esc(r.name)}">\u00d7</button></span>`).join("") : `<span class="msg">Tick + on two or more destinations</span>`;
+  $("#goCmp").disabled = sel.length<2;
+  if (sel.length<2){ $("#cmpBody").innerHTML = `<div class="panel empty">Pick at least two destinations with the + button to compare them here (up to 5).</div>`; return; }
+  const ranks = liveRanks();
+  const groups = [...new Set(M.map(m=>m.g))];
+  let h = `<div class="tblwrap"><table class="ct"><thead><tr><th scope="col"></th>${sel.map(r=>`<th scope="col">${esc(r.name)}<button class="x" type="button" data-cmp="${esc(r.name)}" aria-label="Remove ${esc(r.name)}">\u00d7</button></th>`).join("")}</tr></thead><tbody>`;
+  h += `<tr><th scope="row">Rank (current weights)</th>${sel.map(r=>`<td><div class="cell"><span class="n">#${ranks[r.name]} of 20</span></div></td>`).join("")}</tr>`;
+  const wins = Object.fromEntries(sel.map(r=>[r.name,0]));
+  for (const g of groups){
+    let body = "";
+    for (const m of M.filter(x=>x.g===g)){
+      const vals = sel.map(r=>m.get(r));
+      if (st.diff && vals.every(v=>v===vals[0])) continue;
+      const best = m.b==="high" ? Math.max(...vals) : Math.min(...vals);
+      const allSame = vals.every(v=>v===vals[0]);
+      body += `<tr><th scope="row">${esc(m.l)}${m.crit?`<span class="w8" style="display:block;font:400 11px var(--mono)">weight ${(W[m.k]*100).toFixed(1)}%</span>`:""}</th>${sel.map((r,i)=>{
+        const isBest = !m.nb && !allSame && vals[i]===best; if (isBest && m.crit) wins[r.name]++;
+        const why = st.why && m.why ? `<span class="d">${esc(m.why(r))}</span>` : "";
+        return `<td><div class="cell${isBest?" best":""}"><span class="n">${esc(m.fmt(vals[i],r))}</span><div class="mb"><i style="width:${pct(m,vals[i])}%"></i></div>${why}</div></td>`; }).join("")}</tr>`;
     }
+    if (body) h += `<tr class="grp"><th colspan="${sel.length+1}">${esc(g)}</th></tr>` + body;
+    if (g==="Ranking criteria" && body) h += `<tr class="wins"><th scope="row">Criteria won outright</th>${sel.map(r=>`<td>${wins[r.name]} of ${CRIT.length}</td>`).join("")}</tr>`;
+  }
+  h += `<tr class="grp"><th colspan="${sel.length+1}">Overall fit</th></tr><tr><th scope="row">Summary</th>${sel.map(r=>`<td><span class="d" style="color:var(--ink);font-size:13px">${esc(r.summary)}</span></td>`).join("")}</tr>`;
+  $("#cmpBody").innerHTML = h + `</tbody></table></div>`;
+}
 
-    function renderList(){
-      const m = MK[st.sort], ranks = liveRanks(), q = st.q.trim().toLowerCase();
-      let rows = R.filter(r => r.total <= st.max && (!st.f.sarg || ord.sarg(r)===1)
-        && (!st.f.lvl1 || ord.safety(r)===1) && (!st.f.dry || r.rain<=20)
-        && (!st.f.dive || r.scores.scuba>=8) && (!st.f.hike || r.scores.hiking>=7) && (!st.f.kids || r.scores.kids>=7)
-        && (!st.f.cruise || r.scores.cruise>=8) && (!st.f.drive || r.drive==="Low")
-        && (!q || (r.name+" "+r.summary+" "+Object.values(r.details).join(" ")).toLowerCase().includes(q)));
-      const sign = (m.b==="high"?-1:1)*st.dir;
-      rows.sort((a,b)=> (m.get(a)-m.get(b))*sign || live(b)-live(a));
-      $("#countH").textContent = rows.length===R.length ? "All 20 destinations" : `${rows.length} of 20 destinations`;
-      $("#sortDir").textContent = st.dir===1 ? "↓ Best first" : "↑ Worst first";
-      const wsum = Object.values(W).reduce((a,b)=>a+b,0);
-      const changed = CRIT.some(c=>Math.abs(W[c.key]-SHEETW[c.key])>1e-9);
-      $("#whint").textContent = changed ? "Custom weights — ranks and scores below are recalculated." : "Using the weights from your Travel Constraints tab.";
-      const order = critByW();
-      $("#list").innerHTML = rows.length ? rows.map(r=>{
-        const id = "d"+sheetRank[r.name]+"_"+r.name.replace(/\W+/g,"").slice(0,10);
-        const lr = ranks[r.name], d = sheetRank[r.name]-lr, on = st.sel.includes(r.name), open = !!st.open[r.name];
-        const v = m.get(r);
-        return `<article class="item${on?" sel":""]}">
-          <div class="head">
-            <button class="cmp" type="button" data-cmp="${esc(r.name)}" aria-pressed="${on}" aria-label="Compare ${esc(r.name)}">${on?"✓":"+"}</button>
-            <div class="rk" title="Rank with current weights">${lr}${changed&&d!==0?`<small class="${d>0?"up":"down"}">${d>0?"▲"+d:"▼"+(-d)}</small>`:`<small>rank</small>`}</div>
-            <div class="nm"><h3>${esc(r.name)}</h3><div class="tags">${tags(r)}</div></div>
-            <div class="strip" aria-label="Criterion scores">${order.map(c=>`<span title="${esc(c.label)}: ${r.scores[c.key]}/10 (weight ${(W[c.key]*100).toFixed(1)}%)" style="${cellBg(r.scores[c.key])}">${r.scores[c.key]}</span>`).join("")}</div>
-            <div class="metric"><div class="v">${esc(m.fmt(v,r))}</div><div class="l">${esc(m.l)}</div><div class="bar"><i style="width:${pct(m,v)}%"></i></div></div>
-            <button class="exp" type="button" data-open="${esc(r.name)}" aria-expanded="${open}" aria-controls="${id}" aria-label="Show details for ${esc(r.name)}">⌄</button>
-          </div>
-          ${open?detail(r,id):""}
-        </article>`; }).join("") : `<div class="panel empty">No destinations match these filters. Try raising the cost limit or clearing a filter.</div>`;
-    }
+function renderWeights(){
+  $("#wgrid").innerHTML = CRIT.map(c=>`<div class="w"><label for="w_${c.key}">${esc(c.label)}</label><span class="rangeval" id="wv_${c.key}">${(W[c.key]*100).toFixed(1)}%</span><input type="range" id="w_${c.key}" data-w="${c.key}" min="0" max="30" step="0.5" value="${W[c.key]*100}"></div>`).join("");
+  updWsum();
+}
+function updWsum(){ $("#wsum").textContent = (Object.values(W).reduce((a,b)=>a+b,0)*100).toFixed(1)+"%"; }
 
-    function detail(r,id){
-      return `<div class="body" id="${id}">
-        <div><h4>Why each score</h4>${critByW().map(c=>`<div class="crit"><div><b>${esc(c.label)}</b><span class="w8">weight ${(W[c.key]*100).toFixed(1)}%</span></div><div class="s" style="${cellBg(r.scores[c.key])}">${r.scores[c.key]}</div><div class="t">${esc(r.details[c.key])}</div></div>`).join("")}</div>
-        <div class="side">
-          <div><h4>Overall fit</h4><p class="note">${esc(r.summary)}</p></div>
-          <div><h4>Cost per person, 7 nights</h4><dl class="kv">
-            <dt>Airfare</dt><dd>${money(r.air)}</dd><dt>Lodging (2BR unit ${money(r.unit)}/night)</dt><dd>${money(r.lodging)}</dd>
-            <dt>Car / taxis</dt><dd>${money(r.car)}</dd><dt>Food (${money(r.foodday)}/day)</dt><dd>${money(r.food)}</dd>
-            <dt><b>Total</b></dt><dd><b>${money(r.total)}</b></dd><dt>Left under $4,000</dt><dd>${money(r.headroom)}</dd><dt>Cost risk</dt><dd>${esc(r.costrisk)}</dd></dl></div>
-          <div><h4>Late-May weather</h4><dl class="kv"><dt>High / low</dt><dd>${r.high}° / ${r.low}°F</dd><dt>Water</dt><dd>${r.water}°F</dd><dt>Rain chance</dt><dd>${r.rain}%</dd><dt>Clear sky</dt><dd>${r.clear}%</dd></dl></div>
-          <div><h4>Getting there</h4><p class="note"><b>${esc(short.arrival(r))}</b> · drive burden ${esc(r.drive)}</p></div>
-          <div><h4>Safety & sargassum</h4><p class="note">${esc(r.safety)}</p><p class="note">${esc(r.sarg)}</p></div>
-        </div></div>`;
-    }
+function all(){ renderList(); renderCompare(); store.set(); }
 
-    function renderCompare(){
-      const sel = st.sel.map(n=>R.find(r=>r.name===n)).filter(Boolean);
-      $("#sels").innerHTML = sel.length ? sel.map(r=>`<span class="pill">${esc(r.name.split(/[,/]/)[0].trim())}<button type="button" data-cmp="${esc(r.name)}" aria-label="Remove ${esc(r.name)}">×</button></span>`).join("") : `<span class="msg">Tick + on two or more destinations</span>`;
-      $("#goCmp").disabled = sel.length<2;
-      if (sel.length<2){ $("#cmpBody").innerHTML = `<div class="panel empty">Pick at least two destinations with the + button to compare them here (up to 5).</div>`; return; }
-      const ranks = liveRanks();
-      const groups = [...new Set(M.map(m=>m.g))];
-      let h = `<div class="tblwrap"><table class="ct"><thead><tr><th scope="col"></th>${sel.map(r=>`<th scope="col">${esc(r.name)}<button class="x" type="button" data-cmp="${esc(r.name)}" aria-label="Remove ${esc(r.name)}">×</button></th>`).join("")}</tr></thead><tbody>`;
-      h += `<tr><th scope="row">Rank (current weights)</th>${sel.map(r=>`<td><div class="cell"><span class="n">#${ranks[r.name]} of 20</span></div></td>`).join("")}</tr>`;
-      const wins = Object.fromEntries(sel.map(r=>[r.name,0]));
-      for (const g of groups){
-        let body = "";
-        for (const m of M.filter(x=>x.g===g)){
-          const vals = sel.map(r=>m.get(r));
-          if (st.diff && vals.every(v=>v===vals[0])) continue;
-          const best = m.b==="high" ? Math.max(...vals) : Math.min(...vals);
-          const allSame = vals.every(v=>v===vals[0]);
-          body += `<tr><th scope="row">${esc(m.l)}${m.crit?`<span class="w8" style="display:block;font:400 11px var(--mono)">weight ${(W[m.k]*100).toFixed(1)}%</span>`:""}</th>${sel.map((r,i)=>{
-            const isBest = !m.nb && !allSame && vals[i]===best; if (isBest && m.crit) wins[r.name]++;
-            const why = st.why && m.why ? `<span class="d">${esc(m.why(r))}</span>` : "";
-            return `<td><div class="cell${isBest?" best":""}"><span class="n">${esc(m.fmt(vals[i],r))}</span><div class="mb"><i style="width:${pct(m,vals[i])}%"></i></div>${why}</div></td>`; }).join("")}</tr>`;
-        }
-        if (body) h += `<tr class="grp"><th colspan="${sel.length+1}">${esc(g)}</th></tr>` + body;
-        if (g==="Ranking criteria" && body) h += `<tr class="wins"><th scope="row">Criteria won outright</th>${sel.map(r=>`<td>${wins[r.name]} of ${CRIT.length}</td>`).join("")}</tr>`;
-      }
-      h += `<tr class="grp"><th colspan="${sel.length+1}">Overall fit</th></tr><tr><th scope="row">Summary</th>${sel.map(r=>`<td><span class="d" style="color:var(--ink);font-size:13px">${esc(r.summary)}</span></td>`).join("")}</tr>`;
-      $("#cmpBody").innerHTML = h + `</tbody></table></div>`;
-    }
+// controls
+const sortSel = $("#sortBy");
+sortSel.innerHTML = [...new Set(M.map(m=>m.g))].map(g=>`<optgroup label="${esc(g)}">${M.filter(m=>m.g===g).map(m=>`<option value="${m.k}">${esc(m.l)}</option>`).join("")}</optgroup>`).join("");
+sortSel.value = st.sort;
+sortSel.onchange = e => { st.sort = e.target.value; st.dir = 1; all(); };
+$("#sortDir").onclick = () => { st.dir *= -1; all(); };
+$("#q").oninput = e => { st.q = e.target.value; renderList(); };
+const mc = $("#maxCost"); mc.value = st.max;
+const mcv = () => $("#maxCostV").textContent = st.max>=3500 ? "\u00b7 any" : "\u00b7 "+money(st.max);
+mcv(); mc.oninput = e => { st.max = +e.target.value; mcv(); all(); };
+document.querySelectorAll("#filters .chip").forEach(b=>{ b.setAttribute("aria-pressed", !!st.f[b.dataset.f]); b.title={dive:"SCUBA score 8 or higher",hike:"Hiking score 7 or higher",kids:"Adult Kids Appeal 7 or higher",cruise:"Cruise Crowds score 8 or higher",drive:"Drive burden Low",arr:"Same-day arrival verified",sarg:"Sargassum risk Low",lvl1:"State Dept Level 1 or US territory",dry:"Late-May rain chance 20% or less"}[b.dataset.f]||"";
+  b.onclick = () => { st.f[b.dataset.f] = !st.f[b.dataset.f]; b.setAttribute("aria-pressed", st.f[b.dataset.f]); all(); }; });
+renderWeights();
+$("#wgrid").addEventListener("input", e => { const k=e.target.dataset.w; if(!k) return; W[k]=+e.target.value/100; $("#wv_"+k).textContent=(+e.target.value).toFixed(1)+"%"; updWsum(); calcRanges(); all(); });
+$("#wreset").onclick = () => { W={...SHEETW}; renderWeights(); calcRanges(); all(); };
+for (const [id,key] of [["#showWhy","why"],["#diffOnly","diff"]]){ const b=$(id); b.setAttribute("aria-pressed", st[key]); b.onclick=()=>{ st[key]=!st[key]; b.setAttribute("aria-pressed", st[key]); renderCompare(); store.set(); }; }
+$("#clearCmp").onclick = () => { st.sel = []; all(); };
+$("#goCmp").onclick = () => $("#compare").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
+document.addEventListener("click", e => {
+  const c = e.target.closest("[data-cmp]"); if (c){ const n=c.dataset.cmp, i=st.sel.indexOf(n);
+    if (i>=0) st.sel.splice(i,1); else { if (st.sel.length>=5) st.sel.shift(); st.sel.push(n); } all(); return; }
+  const o = e.target.closest("[data-open]"); if (o){ const n=o.dataset.open; st.open[n]=!st.open[n]; renderList(); }
+});
+calcRanges(); all();
 
-    function renderWeights(){
-      $("#wgrid").innerHTML = CRIT.map(c=>`<div class="w"><label for="w_${c.key}">${esc(c.label)}</label><span class="rangeval" id="wv_${c.key}">${(W[c.key]*100).toFixed(1)}%</span><input type="range" id="w_${c.key}" data-w="${c.key}" min="0" max="30" step="0.5" value="${W[c.key]*100}"></div>`).join("");
-      updWsum();
-    }
-    function updWsum(){ $("#wsum").textContent = (Object.values(W).reduce((a,b)=>a+b,0)*100).toFixed(1)+"%"; }
+</script>
 
-    function all(){ renderList(); renderCompare(); store.set(); }
-
-    const sortSel = $("#sortBy");
-    sortSel.innerHTML = [...new Set(M.map(m=>m.g))].map(g=>`<optgroup label="${esc(g)}">${M.filter(m=>m.g===g).map(m=>`<option value="${m.k}">${esc(m.l)}</option>`).join("")}</optgroup>`).join("");
-    sortSel.value = st.sort;
-    sortSel.onchange = e => { st.sort = e.target.value; st.dir = 1; all(); };
-    $("#sortDir").onclick = () => { st.dir *= -1; all(); };
-    $("#q").oninput = e => { st.q = e.target.value; renderList(); };
-    const mc = $("#maxCost"); mc.value = st.max;
-    const mcv = () => $("#maxCostV").textContent = st.max>=3500 ? "· any" : "· "+money(st.max);
-    mcv(); mc.oninput = e => { st.max = +e.target.value; mcv(); all(); };
-    document.querySelectorAll("#filters .chip").forEach(b=>{ b.setAttribute("aria-pressed", !!st.f[b.dataset.f]); b.title={dive:"SCUBA score 8 or higher",hike:"Hiking score 7 or higher",kids:"Adult Kids Appeal 7 or higher",cruise:"Cruise Crowds score 8 or higher",drive:"Drive burden Low",arr:"Same-day arrival verified",sarg:"Sargassum risk Low",lvl1:"State Dept Level 1 or US territory",dry:"Late-May rain chance 20% or less"}[b.dataset.f]||"";
-      b.onclick = () => { st.f[b.dataset.f] = !st.f[b.dataset.f]; b.setAttribute("aria-pressed", st.f[b.dataset.f]); all(); }; });
-    renderWeights();
-    $("#wgrid").addEventListener("input", e => { const k=e.target.dataset.w; if(!k) return; W[k]=+e.target.value/100; $("#wv_"+k).textContent=(+e.target.value).toFixed(1)+"%"; updWsum(); calcRanges(); all(); });
-    $("#wreset").onclick = () => { W={...SHEETW}; renderWeights(); calcRanges(); all(); };
-    for (const [id,key] of [["#showWhy","why"],["#diffOnly","diff"]]){ const b=$(id); b.setAttribute("aria-pressed", st[key]); b.onclick=()=>{ st[key]=!st[key]; b.setAttribute("aria-pressed", st[key]); renderCompare(); store.set(); }; }
-    $("#clearCmp").onclick = () => { st.sel = []; all(); };
-    $("#goCmp").onclick = () => $("#compare").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
-    document.addEventListener("click", e => {
-      const c = e.target.closest("[data-cmp]"); if (c){ const n=c.dataset.cmp, i=st.sel.indexOf(n);
-        if (i>=0) st.sel.splice(i,1); else { if (st.sel.length>=5) st.sel.shift(); st.sel.push(n); } all(); return; }
-      const o = e.target.closest("[data-open]"); if (o){ const n=o.dataset.open; st.open[n]=!st.open[n]; renderList(); }
-    });
-    calcRanges(); all();
-  </script>
-</body>
 </html>
