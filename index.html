@@ -24,6 +24,7 @@
   --accent:#3EC0B4; --on-accent:#06201E; --sun:#F0B54F; --sun-soft:#3A2E17;
   --good:#5CC48A; --warn:#E3AE4F; --bad:#EE7A6E; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:0 96px}
 .wrap{max-width:1180px;margin:0 auto}
 h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
@@ -388,7 +389,7 @@ function renderWeights(){
   updWsum();
 }
 function updWsum(){
-  const t = Object.values(W).reduce((a,b)=>a+b,0)*100, off = Math.abs(t-100) > 0.05;
+  const t = Math.round(Object.values(W).reduce((a,b)=>a+b,0)*1000)/10, off = Math.abs(t-100) > 0.05;
   const txt = t.toFixed(1)+"%";
   $("#wsum").textContent = txt;
   const tot = $("#wtot"); tot.textContent = off ? "Total "+txt+" \u2260 100%" : "Total 100% \u2713"; tot.classList.toggle("off", off);
@@ -413,7 +414,12 @@ document.querySelectorAll("#filters .chip").forEach(b=>{ b.setAttribute("aria-pr
   b.onclick = () => { st.f[b.dataset.f] = !st.f[b.dataset.f]; b.setAttribute("aria-pressed", st.f[b.dataset.f]); all(); }; });
 renderWeights();
 $("#wgrid").addEventListener("input", e => { const k=e.target.dataset.w; if(!k) return; W[k]=+e.target.value/100; $("#wv_"+k).textContent=(+e.target.value).toFixed(1)+"%"; updWsum(); calcRanges(); all(); });
-$("#wnorm").onclick = () => { const t=Object.values(W).reduce((a,b)=>a+b,0); if(!t) return; for (const k in W) W[k]=Math.round(W[k]/t*1000)/1000; const big=Object.keys(W).sort((a,b)=>W[b]-W[a])[0]; W[big]=Math.round((W[big]+1-Object.values(W).reduce((a,c)=>a+c,0))*1000)/1000; renderWeights(); calcRanges(); all(); };
+$("#wnorm").onclick = () => { // scale to 100%, snapped to the sliders' 0.5% steps
+  const t=Object.values(W).reduce((a,b)=>a+b,0); if(!t) return;
+  for (const k in W) W[k]=Math.round(W[k]/t*200)/200;
+  const big=Object.keys(W).sort((a,b)=>W[b]-W[a])[0];
+  W[big]=Math.round((W[big]+1-Object.values(W).reduce((a,c)=>a+c,0))*1000)/1000;
+  renderWeights(); calcRanges(); all(); };
 $("#wreset").onclick = () => { W={...SHEETW}; renderWeights(); calcRanges(); all(); };
 for (const [id,key] of [["#showWhy","why"],["#diffOnly","diff"]]){ const b=$(id); b.setAttribute("aria-pressed", st[key]); b.onclick=()=>{ st[key]=!st[key]; b.setAttribute("aria-pressed", st[key]); renderCompare(); store.set(); }; }
 $("#clearCmp").onclick = () => { st.sel = []; all(); };
